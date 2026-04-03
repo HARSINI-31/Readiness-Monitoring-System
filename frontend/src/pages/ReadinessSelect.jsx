@@ -3,22 +3,34 @@ import { Card, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import { useUser } from "../context/UserContext";
+import { useTheme } from "../context/ThemeContext";
+import { getDashboardNav } from "../utils/navConfig";
 
 function ReadinessSelect() {
   const navigate = useNavigate();
   const { studentProfile, user, logout } = useUser();
+  const { theme } = useTheme();
 
   useEffect(() => {
-    // Check if student profile exists
-    if (user && !studentProfile) {
-      // Redirect to student profile page if not completed
-      navigate("/student-profile");
+    // Check if student profile exists and is complete (skip for admins)
+    if (user && user.role !== "admin") {
+      const isComplete = studentProfile && 
+                        studentProfile.studentId && 
+                        studentProfile.department && 
+                        studentProfile.yearOfStudy;
+
+      if (!isComplete) {
+        // Redirect to student profile page if not completed
+        navigate("/student-profile", { 
+          state: { message: "Please complete your profile to access readiness assessments." } 
+        });
+      }
     }
   }, [studentProfile, user, navigate]);
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   const assessmentCards = [
@@ -40,23 +52,18 @@ function ReadinessSelect() {
     }
   ];
 
-  const navItems = [
-    { label: "Home", path: "/", icon: "🏠" },
-    { label: "My Results", path: "/my-results", icon: "📊" },
-    { label: "Profile", path: "/student-profile", icon: "👤" },
-  ];
-
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #0f172a, #1e293b, #334155)",
+        background: theme.bg,
         display: "flex",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        color: theme.mainText
       }}
     >
       <Sidebar 
-        navItems={navItems} 
+        navItems={getDashboardNav()} 
         showLogout={true}
         onLogout={handleLogout}
         userName={user?.name || "Student"}
@@ -77,7 +84,7 @@ function ReadinessSelect() {
         {/* Main Heading */}
         <h1
           style={{
-            color: "white",
+            color: theme.mainText,
             fontSize: "48px",
             fontWeight: "800",
             marginBottom: "15px",
@@ -91,7 +98,7 @@ function ReadinessSelect() {
         {/* Subtitle */}
         <p
           style={{
-            color: "#cbd5e1",
+            color: theme.subText,
             fontSize: "18px",
             marginBottom: "60px",
             textAlign: "center",
@@ -164,15 +171,15 @@ function ReadinessSelect() {
               style={{
                 width: "380px",
                 borderRadius: "16px",
-                border: "none",
-                background: "rgba(255, 255, 255, 0.05)",
+                border: theme.cardBorder !== "none" ? theme.cardBorder : "none",
+                background: theme.cardBg,
                 backdropFilter: "blur(10px)",
                 padding: "35px",
                 textAlign: "center",
-                color: "#fff",
+                color: theme.mainText,
                 cursor: "pointer",
                 borderLeft: `4px solid ${card.color}`,
-                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)"
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)"
               }}
               onClick={() => navigate(card.path)}
             >
@@ -195,10 +202,7 @@ function ReadinessSelect() {
                   fontSize: "26px",
                   fontWeight: "700",
                   marginBottom: "15px",
-                  background: `linear-gradient(135deg, #fff, #cbd5e1)`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text"
+                  color: theme.mainText
                 }}
               >
                 {card.title.substring(2)}
@@ -209,7 +213,7 @@ function ReadinessSelect() {
                 style={{
                   fontSize: "16px",
                   lineHeight: "1.8",
-                  color: "#cbd5e1",
+                  color: theme.subText,
                   marginBottom: "30px",
                   minHeight: "80px"
                 }}
@@ -287,24 +291,6 @@ function ReadinessSelect() {
           box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
       `}</style>
-
-      {/* Back Button */}
-      <div style={{ marginTop: "50px" }}>
-        <Button
-          variant="outline-light"
-          size="lg"
-          onClick={() => navigate("/")}
-          style={{
-            borderColor: "#cbd5e1",
-            color: "#cbd5e1",
-            fontSize: "16px",
-            padding: "10px 30px",
-            borderRadius: "8px"
-          }}
-        >
-          ← Back to Home
-        </Button>
-      </div>
       </main>
     </div>
   );

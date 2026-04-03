@@ -4,16 +4,19 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import Sidebar from "../components/Sidebar";
 import { useUser } from "../context/UserContext";
+import { useTheme } from "../context/ThemeContext";
+import { getDashboardNav } from "../utils/navConfig";
 
 function PlacementResult() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useUser();
+  const { theme } = useTheme();
   const data = location.state;
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   if (!data) {
@@ -38,11 +41,11 @@ function PlacementResult() {
   let status = "";
   let statusColor = "";
   
-  if (overall >= 85) {
+  if (overall >= 80) {
     feedback = "Excellent readiness! You're placement-ready!";
     status = "Ready";
     statusColor = "#10b981";
-  } else if (overall >= 70) {
+  } else if (overall >= 60) {
     feedback = "Good job! Focus on weaker skills for better readiness.";
     status = "Moderately Ready";
     statusColor = "#f59e0b";
@@ -56,19 +59,14 @@ function PlacementResult() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #0f172a, #1e293b, #334155)",
-        color: "#fff",
+        background: theme.bg,
+        color: theme.mainText,
         display: "flex",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}
     >
       <Sidebar
-        navItems={[
-          { label: "Home", path: "/", icon: "🏠" },
-          { label: "Exam Readiness", path: "/exam-readiness", icon: "📚" },
-          { label: "Placement Readiness", path: "/placement-readiness", icon: "💼" },
-          { label: "My Results", path: "/my-results", icon: "📊" },
-          { label: "Profile", path: "/student-profile", icon: "👤" },
-        ]}
+        navItems={getDashboardNav()}
         showLogout={true}
         onLogout={handleLogout}
         userName={user?.name || "Student"}
@@ -101,7 +99,7 @@ function PlacementResult() {
             text={`${overall}%`}
             styles={buildStyles({
               textColor: "#fff",
-              pathColor: overall >= 85 ? "#4e73df" : overall >= 70 ? "#1cc88a" : "#e74a3b",
+              pathColor: overall >= 80 ? "#10b981" : overall >= 60 ? "#f59e0b" : "#ef4444",
               trailColor: "rgba(255,255,255,0.3)",
             })}
           />
@@ -136,7 +134,7 @@ function PlacementResult() {
         </div>
 
         {/* Buttons */}
-        <div style={{ marginTop: "50px", display: "flex", gap: "20px" }}>
+        <div style={{ marginTop: "50px" }}>
           <button
             style={{
               padding: "12px 30px",
@@ -151,21 +149,6 @@ function PlacementResult() {
             onClick={() => navigate("/placement-readiness")}
           >
             Recalculate
-          </button>
-          <button
-            style={{
-              padding: "12px 30px",
-              fontSize: "18px",
-              borderRadius: "10px",
-              border: "none",
-              cursor: "pointer",
-              background: "#1cc88a",
-              color: "#fff",
-              fontWeight: "600",
-            }}
-            onClick={() => navigate("/")}
-          >
-            Home
           </button>
         </div>
       </main>

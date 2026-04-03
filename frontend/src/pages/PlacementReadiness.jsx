@@ -4,11 +4,35 @@ import Sidebar from "../components/Sidebar";
 import { Card, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
+import { useTheme } from "../context/ThemeContext";
+import { getDashboardNav } from "../utils/navConfig";
 
 function PlacementReadiness() {
   const navigate = useNavigate();
   const { user, studentProfile, logout } = useUser();
   const isAdmin = user?.role === "admin" || user?.userType === "admin";
+  const { theme } = useTheme();
+  const [profileCheckLoading, setProfileCheckLoading] = useState(true);
+
+  useEffect(() => {
+    if (user && user.role !== "admin") {
+      const isComplete = studentProfile && 
+                        studentProfile.studentId && 
+                        studentProfile.department && 
+                        studentProfile.yearOfStudy;
+
+      if (!isComplete) {
+        navigate("/student-profile", { 
+          state: { message: "Please complete your profile to access readiness assessments." } 
+        });
+      } else {
+        setProfileCheckLoading(false);
+      }
+    } else {
+      setProfileCheckLoading(false);
+    }
+  }, [user, studentProfile, navigate]);
+
 
   // Coding
   const [codingAssessment, setCodingAssessment] = useState("");
@@ -31,6 +55,8 @@ function PlacementReadiness() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedStudent, setExpandedStudent] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState("");
 
   useEffect(() => {
     if (isAdmin) {
@@ -77,10 +103,66 @@ function PlacementReadiness() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
+  };
+
+  const validatePlacementForm = () => {
+    const newErrors = {};
+    const fields = [
+      { name: 'codingAssessment', label: 'Coding Assessment', val: codingAssessment },
+      { name: 'problemsSolved', label: 'Problems Solved', val: problemsSolved },
+      { name: 'mockAptitude', label: 'Mock Aptitude', val: mockAptitude },
+      { name: 'logicalScore', label: 'Logical Score', val: logicalScore },
+      { name: 'mockInterview', label: 'Mock Interview', val: mockInterview },
+      { name: 'gdScore', label: 'GD Score', val: gdScore },
+      { name: 'sessionParticipation', label: 'Session Participation', val: sessionParticipation },
+      { name: 'workshopAttendance', label: 'Workshop Attendance', val: workshopAttendance }
+    ];
+
+    fields.forEach(f => {
+      if (f.val === "" || Number(f.val) < 0 || Number(f.val) > 100) {
+        newErrors[f.name] = `${f.label} must be between 0 and 100`;
+      }
+    });
+
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setGeneralError("Please correct the errors before calculating.");
+    } else {
+      setGeneralError("");
+    }
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const isPlacementFormValid = () => {
+    if (Object.keys(errors).length > 0) return false;
+    const values = [codingAssessment, problemsSolved, mockAptitude, logicalScore, mockInterview, gdScore, sessionParticipation, workshopAttendance];
+    return values.every(v => v !== "" && Number(v) >= 0 && Number(v) <= 100);
+  };
+
+  const handleFieldChange = (setter, fieldName, value) => {
+    setter(value);
+    
+    // Real-time validation
+    setErrors(prev => {
+      const next = { ...prev };
+      if (value === "" || Number(value) < 0 || Number(value) > 100) {
+        next[fieldName] = "Value must be between 0 and 100";
+      } else {
+        delete next[fieldName];
+      }
+
+      if (Object.keys(next).length === 0) {
+        setGeneralError("");
+      }
+      return next;
+    });
   };
 
   const handleCalculate = async () => {
+    if (!validatePlacementForm()) return;
+
+    setLoading(true);
     try {
       const response = await fetch("http://localhost:5000/calculate", {
         method: "POST",
@@ -106,45 +188,49 @@ function PlacementReadiness() {
     } catch (error) {
       console.error("Calculation error:", error);
       alert("Failed to calculate readiness. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const getStatusColor = (overall) => {
-    if (overall >= 85) return "#10b981";
-    if (overall >= 70) return "#f59e0b";
+    if (overall >= 80) return "#10b981";
+    if (overall >= 60) return "#f59e0b";
     return "#ef4444";
   };
 
   const getStatusText = (overall) => {
-    if (overall >= 85) return "Ready";
-    if (overall >= 70) return "Moderately Ready";
+    if (overall >= 80) return "Ready";
+    if (overall >= 60) return "Moderately Ready";
     return "Not Ready";
   };
+
+  if (profileCheckLoading && user?.role !== "admin") {
+    return <div style={{ background: theme.bg, minHeight: "100vh" }}></div>;
+  }
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #0f172a, #1e293b, #334155)",
+        background: theme.bg,
         display: "flex",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        color: theme.mainText
       }}
     >
       {/* ADMIN VIEW */}
       {isAdmin ? (
         <>
           <Sidebar
-            navItems={[
-              { label: "Home", path: "/", icon: "🏠" },
-              { label: "Exam Readiness", path: "/exam-readiness", icon: "📚" },
-              { label: "Admin Dashboard", path: "/admin", icon: "📊" },
-            ]}
+            navItems={getDashboardNav()}
             showLogout={true}
             onLogout={handleLogout}
             userName={user?.name || "Admin"}
           />
 
           <main style={{ marginLeft: "280px", flex: 1, padding: "40px 20px", overflowY: "auto" }}>
-            <h1 style={{ color: "#fff", fontSize: "36px", marginBottom: "30px", fontWeight: "bold" }}>
+            <h1 style={{ color: theme.mainText, fontSize: "36px", marginBottom: "30px", fontWeight: "bold" }}>
               💼 Placement Readiness Results
             </h1>
 
@@ -321,14 +407,15 @@ function PlacementReadiness() {
                               </tr>
                             </thead>
                             <tbody>
-                              {sortedAttempts.map((attempt, idx) => (
-                                <tr
-                                  key={idx}
-                                  style={{
-                                    borderBottom: "1px solid #334155",
-                                    backgroundColor: idx % 2 === 0 ? "rgba(30, 41, 59, 0.5)" : "transparent",
-                                  }}
-                                >
+                              {sortedAttempts.map((attempt, idx) => {
+                                return (
+                                  <tr
+                                    key={idx}
+                                    style={{
+                                      borderBottom: "1px solid #334155",
+                                      backgroundColor: idx % 2 === 0 ? "rgba(30, 41, 59, 0.5)" : "transparent",
+                                    }}
+                                  >
                                   <td style={{ padding: "12px" }}>
                                     {attempt.aptitudeScore || "-"}
                                   </td>
@@ -364,7 +451,8 @@ function PlacementReadiness() {
                                       : attempt.date || "-"}
                                   </td>
                                 </tr>
-                              ))}
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
@@ -380,12 +468,7 @@ function PlacementReadiness() {
         /* STUDENT VIEW */
         <>
           <Sidebar
-            navItems={[
-              { label: "Home", path: "/", icon: "🏠" },
-              { label: "Exam Readiness", path: "/exam-readiness", icon: "📚" },
-              { label: "My Results", path: "/my-results", icon: "📊" },
-              { label: "Profile", path: "/student-profile", icon: "👤" },
-            ]}
+            navItems={getDashboardNav()}
             showLogout={true}
             onLogout={handleLogout}
             userName={user?.name || "Student"}
@@ -405,12 +488,12 @@ function PlacementReadiness() {
           >
             <h1
               style={{
-                color: "#fff",
+                color: theme.mainText,
                 fontSize: "42px",
                 fontWeight: "700",
                 marginBottom: "50px",
                 textAlign: "center",
-                textShadow: "2px 2px 8px rgba(0,0,0,0.4)"
+                textShadow: theme.isDarkMode ? "2px 2px 8px rgba(0,0,0,0.4)" : "none"
               }}
             >
               Placement Readiness Assessment
@@ -421,7 +504,7 @@ function PlacementReadiness() {
                 display: "flex",
                 flexWrap: "wrap",
                 justifyContent: "center",
-                gap: "50px",
+                gap: "30px",
                 maxWidth: "1200px"
               }}
             >
@@ -429,103 +512,118 @@ function PlacementReadiness() {
                 {
                   title: "Coding Skills",
                   inputs: [
-                    { value: codingAssessment, setter: setCodingAssessment, placeholder: "Coding Assessment Score (0-100)" },
-                    { value: problemsSolved, setter: setProblemsSolved, placeholder: "Problems Solved % (0-100)" }
+                    { value: codingAssessment, setter: setCodingAssessment, name: "codingAssessment", placeholder: "Coding Assessment Score (0-100)" },
+                    { value: problemsSolved, setter: setProblemsSolved, name: "problemsSolved", placeholder: "Problems Solved % (0-100)" }
                   ]
                 },
                 {
                   title: "Aptitude Skills",
                   inputs: [
-                    { value: mockAptitude, setter: setMockAptitude, placeholder: "Mock Aptitude Score (0-100)" },
-                    { value: logicalScore, setter: setLogicalScore, placeholder: "Logical & Quant Score (0-100)" }
+                    { value: mockAptitude, setter: setMockAptitude, name: "mockAptitude", placeholder: "Mock Aptitude Score (0-100)" },
+                    { value: logicalScore, setter: setLogicalScore, name: "logicalScore", placeholder: "Logical & Quant Score (0-100)" }
                   ]
                 },
                 {
                   title: "Communication Skills",
                   inputs: [
-                    { value: mockInterview, setter: setMockInterview, placeholder: "Mock Interview Score (0-100)" },
-                    { value: gdScore, setter: setGdScore, placeholder: "GD Score (0-100)" }
+                    { value: mockInterview, setter: setMockInterview, name: "mockInterview", placeholder: "Mock Interview Score (0-100)" },
+                    { value: gdScore, setter: setGdScore, name: "gdScore", placeholder: "GD Score (0-100)" }
                   ]
                 },
                 {
                   title: "Participation",
                   inputs: [
-                    { value: sessionParticipation, setter: setSessionParticipation, placeholder: "Session Participation % (0-100)" },
-                    { value: workshopAttendance, setter: setWorkshopAttendance, placeholder: "Workshop Attendance % (0-100)" }
+                    { value: sessionParticipation, setter: setSessionParticipation, name: "sessionParticipation", placeholder: "Session Participation % (0-100)" },
+                    { value: workshopAttendance, setter: setWorkshopAttendance, name: "workshopAttendance", placeholder: "Workshop Attendance % (0-100)" }
                   ]
                 }
               ].map((section, index) => (
                 <div
                   key={index}
                   style={{
-                    background: "rgba(255,255,255,0.15)",
+                    background: theme.cardBg,
                     backdropFilter: "blur(14px)",
-                    padding: "40px",
+                    padding: "30px",
                     borderRadius: "25px",
                     width: "350px",
-                    color: "#fff",
-                    boxShadow: "0 12px 30px rgba(0,0,0,0.5)",
-                    border: "1px solid rgba(255,255,255,0.25)"
+                    color: theme.mainText,
+                    boxShadow: theme.isDarkMode ? "0 12px 30px rgba(0,0,0,0.5)" : "0 4px 15px rgba(0,0,0,0.05)",
+                    border: theme.cardBorder !== "none" ? theme.cardBorder : "1px solid rgba(255,255,255,0.25)"
                   }}
                 >
                   <h3
                     style={{
-                      fontSize: "24px",
-                      marginBottom: "25px",
+                      fontSize: "22px",
+                      marginBottom: "20px",
                       fontWeight: "700",
-                      textShadow: "1px 1px 5px rgba(0,0,0,0.3)"
+                      textShadow: theme.isDarkMode ? "1px 1px 5px rgba(0,0,0,0.3)" : "none"
                     }}
                   >
                     {section.title}
                   </h3>
 
                   {section.inputs.map((input, i) => (
-                    <input
-                      key={i}
-                      type="number"
-                      min="0"
-                      max="100"
-                      placeholder={input.placeholder}
-                      value={input.value}
-                      onChange={(e) => input.setter(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "14px",
-                        margin: "12px 0",
-                        borderRadius: "10px",
-                        border: "1px solid #ccc",
-                        fontSize: "16px",
-                        background: "#FFFFFF",
-                        color: "#000000",
-                        textAlign: "center",
-                        outline: "none",
-                        boxShadow: "inset 0 2px 6px rgba(0,0,0,0.1)"
-                      }}
-                    />
+                    <div key={i} style={{ marginBottom: "15px" }}>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        placeholder={input.placeholder}
+                        value={input.value}
+                        onChange={(e) => handleFieldChange(input.setter, input.name, e.target.value)}
+                        style={{
+                          width: "100%",
+                          padding: "12px",
+                          borderRadius: "10px",
+                          border: errors[input.name] ? "2px solid #ef4444" : "1px solid #cbd5e1",
+                          fontSize: "15px",
+                          background: "#FFFFFF",
+                          color: "#000000",
+                          textAlign: "center",
+                          outline: "none",
+                          fontWeight: "500"
+                        }}
+                      />
+                      {errors[input.name] && (
+                        <div style={{ color: "#ef4444", fontSize: "11px", marginTop: "4px", fontWeight: "600" }}>
+                          {errors[input.name]}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               ))}
             </div>
 
+            {generalError && (
+              <div style={{ color: "#ef4444", marginTop: "30px", fontWeight: "600", background: "rgba(239, 68, 68, 0.1)", padding: "10px 20px", borderRadius: "10px" }}>
+                {generalError}
+              </div>
+            )}
+
             <button
               onClick={handleCalculate}
+              disabled={loading || !isPlacementFormValid()}
               style={{
                 padding: "16px 50px",
-                marginTop: "60px",
-                fontSize: "20px",
+                marginTop: "40px",
+                fontSize: "18px",
                 fontWeight: "700",
-                borderRadius: "15px",
+                borderRadius: "30px",
                 border: "none",
-                background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+                background: "linear-gradient(135deg, #10b981, #059669)",
                 color: "#FFFFFF",
-                cursor: "pointer",
-                boxShadow: "0 12px 30px rgba(0,0,0,0.5)",
-                transition: "transform 0.2s"
+                cursor: loading || !isPlacementFormValid() ? "not-allowed" : "pointer",
+                opacity: loading || !isPlacementFormValid() ? 0.6 : 1,
+                boxShadow: "0 12px 30px rgba(0,0,0,0.3)",
+                transition: "all 0.3s ease"
               }}
-              onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-              onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+              onMouseEnter={(e) => {
+                if (!loading && isPlacementFormValid()) e.target.style.transform = "translateY(-3px)";
+              }}
+              onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
             >
-              Calculate Placement Readiness
+              {loading ? "Calculating..." : "Calculate Placement Readiness"}
             </button>
           </main>
         </>

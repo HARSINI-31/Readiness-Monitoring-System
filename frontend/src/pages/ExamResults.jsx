@@ -4,17 +4,20 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import Sidebar from "../components/Sidebar";
 import { useUser } from "../context/UserContext";
+import { useTheme } from "../context/ThemeContext";
+import { getDashboardNav } from "../utils/navConfig";
 
 
 function ExamResult() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useUser();
+  const { theme } = useTheme();
   const data = location.state;
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   if (!data) {
@@ -28,23 +31,26 @@ function ExamResult() {
     );
   }
 
-
   const {
-    internalAssignments,
-    assignmentCompletion,
+    department,
+    subjects,
     attendance,
-    unitTestMarks,
-    midSemExam,
+    studyHours,
+    avgInternalMarks,
+    avgAssignmentCompletion,
+    avgAttendance,
+    avgStudyHours,
     overall,
   } = data;
 
+  const attendanceValue = typeof attendance === "number" ? attendance : 0;
+  const studyHoursValue = typeof studyHours === "number" ? studyHours : 0;
 
   const parameters = [
-    { name: "Internal", value: internalAssignments, color: "#4e73df" },
-    { name: "Completion", value: assignmentCompletion, color: "#1cc88a" },
-    { name: "Attendance", value: attendance, color: "#36b9cc" },
-    { name: "Unit Test", value: unitTestMarks, color: "#f6c23e" },
-    { name: "Mid-Sem", value: midSemExam, color: "#e74a3b" },
+    { name: "Avg Internal", value: avgInternalMarks || 0, color: "#4e73df" },
+    { name: "Avg Assignment", value: avgAssignmentCompletion || 0, color: "#1cc88a" },
+    { name: "Attendance", value: avgAttendance || 0, color: "#36b9cc" },
+    { name: "Study Hours", value: (avgStudyHours / 10) * 100 || 0, color: "#f6c23e" },
   ];
 
 
@@ -52,16 +58,12 @@ function ExamResult() {
   let status = "";
   let statusColor = "";
   
-  if (overall >= 85) {
+  if (overall >= 80) {
     feedback = "Excellent preparation! Keep it up!";
     status = "Ready";
     statusColor = "#10b981";
-  } else if (overall >= 70) {
+  } else if (overall >= 60) {
     feedback = "Good job! Focus on weak areas to improve.";
-    status = "Moderately Ready";
-    statusColor = "#f59e0b";
-  } else if (overall >= 50) {
-    feedback = "Moderate performance. More consistency required.";
     status = "Moderately Ready";
     statusColor = "#f59e0b";
   } else {
@@ -75,19 +77,14 @@ function ExamResult() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #0f172a, #1e293b, #334155)",
-        color: "#ffffff",
+        background: theme.bg,
+        color: theme.mainText,
         display: "flex",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}
     >
       <Sidebar
-        navItems={[
-          { label: "Home", path: "/", icon: "🏠" },
-          { label: "Exam Readiness", path: "/exam-readiness", icon: "📚" },
-          { label: "Placement Readiness", path: "/placement-readiness", icon: "💼" },
-          { label: "My Results", path: "/my-results", icon: "📊" },
-          { label: "Profile", path: "/student-profile", icon: "👤" },
-        ]}
+        navItems={getDashboardNav()}
         showLogout={true}
         onLogout={handleLogout}
         userName={user?.name || "Student"}
@@ -211,6 +208,100 @@ function ExamResult() {
           {feedback}
         </div>
 
+        {/* ===== Subject-wise Breakdown ===== */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "1000px",
+            marginBottom: "40px",
+            background: theme.cardBg,
+            borderRadius: "15px",
+            padding: "20px",
+            border: theme.cardBorder !== "none" ? theme.cardBorder : "1px solid rgba(203, 213, 225, 0.2)",
+          }}
+        >
+          <h3 style={{ color: theme.mainText, marginBottom: "20px", textAlign: "center" }}>
+            📚 Subject-wise Performance Breakdown
+          </h3>
+          <div style={{ color: theme.subText, marginBottom: "20px", textAlign: "center", fontSize: "14px" }}>
+            Department: <span style={{ color: "#3b82f6", fontWeight: "bold" }}>{department}</span>
+          </div>
+
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                color: theme.mainText,
+                borderCollapse: "collapse",
+                fontSize: "14px",
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: "2px solid #3b82f6", background: "rgba(59, 130, 246, 0.1)" }}>
+                  <th style={{ padding: "12px", textAlign: "left", color: "#3b82f6" }}>Subject Code</th>
+                  <th style={{ padding: "12px", textAlign: "left", color: "#3b82f6" }}>Subject Name</th>
+                  <th style={{ padding: "12px", textAlign: "center", color: "#3b82f6" }}>Internal</th>
+                  <th style={{ padding: "12px", textAlign: "center", color: "#3b82f6" }}>Assignment</th>
+                  <th style={{ padding: "12px", textAlign: "center", color: "#3b82f6" }}>Attendance</th>
+                  <th style={{ padding: "12px", textAlign: "center", color: "#3b82f6" }}>Study Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {subjects?.map((subject, index) => (
+                  <tr key={index} style={{ borderBottom: "1px solid rgba(203, 213, 225, 0.2)" }}>
+                    <td style={{ padding: "12px", fontWeight: "bold", color: "#3b82f6" }}>
+                      {subject.code}
+                    </td>
+                    <td style={{ padding: "12px", color: theme.mainText }}>
+                      {subject.name}
+                    </td>
+                    <td style={{ padding: "12px", textAlign: "center", color: theme.mainText }}>
+                      {subject.internalMarks}%
+                    </td>
+                    <td style={{ padding: "12px", textAlign: "center", color: theme.mainText }}>
+                      {subject.assignmentCompletion}%
+                    </td>
+                    <td style={{ padding: "12px", textAlign: "center", color: theme.mainText }}>
+                      {subject.attendance}%
+                    </td>
+                    <td style={{ padding: "12px", textAlign: "center", color: theme.mainText }}>
+                      {subject.studyHours}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div style={{ marginTop: "20px", padding: "15px", background: "rgba(59, 130, 246, 0.1)", borderRadius: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", fontSize: "14px" }}>
+              <div>
+                <strong style={{ color: theme.mainText }}>Overall Attendance:</strong>{" "}
+                <span style={{ color: "#3b82f6" }}>{attendance}%</span>
+              </div>
+              <div>
+                <strong style={{ color: theme.mainText }}>Daily Study Hours:</strong>{" "}
+                <span style={{ color: "#3b82f6" }}>{studyHours}/10</span>
+              </div>
+              <div>
+                <strong style={{ color: theme.mainText }}>Average Internal Marks:</strong>{" "}
+                <span style={{ color: "#3b82f6" }}>{avgInternalMarks}%</span>
+              </div>
+              <div>
+                <strong style={{ color: theme.mainText }}>Average Assignment:</strong>{" "}
+                <span style={{ color: "#3b82f6" }}>{avgAssignmentCompletion}%</span>
+              </div>
+              <div>
+                <strong style={{ color: theme.mainText }}>Average Attendance:</strong>{" "}
+                <span style={{ color: "#3b82f6" }}>{avgAttendance}%</span>
+              </div>
+              <div>
+                <strong style={{ color: theme.mainText }}>Average Study Hours:</strong>{" "}
+                <span style={{ color: "#3b82f6" }}>{avgStudyHours}</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ===== Recalculate Button ONLY ===== */}
         <button

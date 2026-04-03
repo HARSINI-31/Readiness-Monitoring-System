@@ -13,33 +13,33 @@ export const UserProvider = ({ children }) => {
     return savedProfile ? JSON.parse(savedProfile) : null;
   });
 
-  const login = (userData) => {
+  const login = React.useCallback((userData) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
     setUser(null);
     setStudentProfile(null);
     localStorage.removeItem("user");
     localStorage.removeItem("studentProfile");
-  };
+  }, []);
 
-  const updateStudentProfile = (profileData) => {
+  const updateStudentProfile = React.useCallback((profileData) => {
     setStudentProfile(profileData);
     localStorage.setItem("studentProfile", JSON.stringify(profileData));
-  };
+  }, []);
+
+  const value = React.useMemo(() => ({
+    user,
+    login,
+    logout,
+    studentProfile,
+    updateStudentProfile,
+  }), [user, login, logout, studentProfile, updateStudentProfile]);
 
   return (
-    <UserContext.Provider
-      value={{
-        user,
-        login,
-        logout,
-        studentProfile,
-        updateStudentProfile,
-      }}
-    >
+    <UserContext.Provider value={value}>
       {children}
     </UserContext.Provider>
   );

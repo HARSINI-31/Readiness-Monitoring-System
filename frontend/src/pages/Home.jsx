@@ -1,10 +1,13 @@
 // src/pages/Home.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
+import { useUser } from "../context/UserContext";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
+
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -27,42 +30,102 @@ const Home = () => {
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "12px 20px" }}>
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "30px" }}>
-            <button
-              onClick={() => scrollToSection("about-section")}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                color: "#cbd5e1",
-                fontSize: "16px",
-                fontWeight: "500",
-                cursor: "pointer",
-                padding: "8px 0",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.target.style.color = "#ffffff")}
-              onMouseLeave={(e) => (e.target.style.color = "#cbd5e1")}
+        {/* Adjusted maxWidth to 100% and reduced horizontal margins/paddings to push items to the edges */}
+        <div style={{ maxWidth: "100%", margin: "0 auto", padding: "12px 20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+            {/* Left side: Logo / Project Name */}
+            <div 
+              style={{ display: "flex", alignItems: "center", cursor: "pointer", gap: "10px", paddingLeft: "10px" }}
+              onClick={() => window.scrollTo(0, 0)}
             >
-              About
-            </button>
-            <button
-              onClick={() => scrollToSection("contact-section")}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                color: "#cbd5e1",
-                fontSize: "16px",
-                fontWeight: "500",
-                cursor: "pointer",
-                padding: "8px 0",
-                transition: "all 0.3s ease",
-              }}
-              onMouseEnter={(e) => (e.target.style.color = "#ffffff")}
-              onMouseLeave={(e) => (e.target.style.color = "#cbd5e1")}
-            >
-              Contact
-            </button>
+              <Logo size="small" />
+              <span style={{ fontSize: "20px", fontWeight: "bold", color: "#ffffff", letterSpacing: "0.5px" }}>
+                Readiness Pro
+              </span>
+            </div>
+
+            {/* Right side: Navigation Links - Increased gap for more spacing between items */}
+            <div style={{ display: "flex", alignItems: "center", gap: "45px", flexWrap: "wrap", paddingRight: "10px" }}>
+              <button
+                onClick={() => scrollToSection("about-section")}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  color: "#cbd5e1",
+                  fontSize: "15px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  padding: "8px 4px",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "#ffffff")}
+                onMouseLeave={(e) => (e.target.style.color = "#cbd5e1")}
+              >
+                About
+              </button>
+              <button
+                onClick={() => scrollToSection("contact-section")}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  color: "#cbd5e1",
+                  fontSize: "15px",
+                  fontWeight: "500",
+                  cursor: "pointer",
+                  padding: "8px 4px",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "#ffffff")}
+                onMouseLeave={(e) => (e.target.style.color = "#cbd5e1")}
+              >
+                Contact
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                style={{
+                  backgroundColor: "transparent",
+                  border: "none",
+                  color: "#cbd5e1",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  padding: "8px 4px",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => (e.target.style.color = "#ffffff")}
+                onMouseLeave={(e) => (e.target.style.color = "#cbd5e1")}
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/signup")}
+                style={{
+                  backgroundColor: "#3b82f6",
+                  border: "none",
+                  color: "#ffffff",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  padding: "8px 24px",
+                  borderRadius: "6px",
+                  transition: "all 0.3s ease",
+                  boxShadow: "0 2px 4px rgba(59, 130, 246, 0.4)",
+                  marginLeft: "15px"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = "#2563eb";
+                  e.target.style.transform = "translateY(-1px)";
+                  e.target.style.boxShadow = "0 4px 8px rgba(59, 130, 246, 0.5)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = "#3b82f6";
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "0 2px 4px rgba(59, 130, 246, 0.4)";
+                }}
+              >
+                Sign Up
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -74,33 +137,14 @@ const Home = () => {
           background: "linear-gradient(135deg, #0f172a, #1e293b, #334155)",
         }}
       >
-        <div style={{ marginBottom: "20px" }}>
-          <Logo size="large" />
-        </div>
-        <h1 className="fw-bold">
+        <h1 className="fw-bold mt-4">
           Track Your Exam and Placement Readiness
         </h1>
 
-        <p className="lead mt-3 mx-auto" style={{ maxWidth: "700px" }}>
+        <p className="lead mt-3 mx-auto mb-5" style={{ maxWidth: "700px" }}>
           This platform helps students understand their exam and placement readiness
           based on performance and preparation metrics.
         </p>
-
-        <div className="mt-4">
-          <button
-            className="btn btn-light btn-lg me-3 px-4"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </button>
-
-          <button
-            className="btn btn-outline-light btn-lg px-4"
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up
-          </button>
-        </div>
       </div>
 
       {/* Features Section */}

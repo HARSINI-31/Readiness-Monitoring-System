@@ -6,7 +6,11 @@ const cors = require("cors");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // ================= MongoDB Connection =================
 mongoose.connect("mongodb://127.0.0.1:27017/readinessDB")
@@ -31,9 +35,8 @@ const studentProfileSchema = new mongoose.Schema({
   name: String,
   email: String,
   phone: String,
-  classBatch: String,
   department: String,
-  semester: String,
+  yearOfStudy: String,
   profileCreatedAt: { type: Date, default: Date.now },
   profileUpdatedAt: { type: Date, default: Date.now }
 });
@@ -45,12 +48,19 @@ const examReadinessSchema = new mongoose.Schema({
   studentId: String,
   userEmail: String,
   studentName: String,
-  internalAssignments: Number,
-  assignmentCompletion: Number,
+  department: String,
+  subjects: [{
+    code: String,
+    name: String,
+    internalMarks: Number,
+    assignmentCompletion: Number,
+    attendance: Number,
+    studyHours: Number
+  }],
   attendance: Number,
-  unitTestMarks: Number,
-  midSemExam: Number,
+  studyHours: Number,
   overall: Number,
+  status: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
@@ -75,11 +85,23 @@ const placementReadinessSchema = new mongoose.Schema({
   communicationScore: Number,
   attendanceScore: Number,
   overall: Number,
+  status: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
 
 const PlacementReadiness = mongoose.model("PlacementReadiness", placementReadinessSchema);
+
+// ================= Contact Message Schema =================
+const contactMessageSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  subject: String,
+  message: String,
+  createdAt: { type: Date, default: Date.now }
+});
+
+const ContactMessage = mongoose.model("ContactMessage", contactMessageSchema);
 
 // ================= Create Admin Function =================
 const createAdmin = async () => {
@@ -117,6 +139,7 @@ app.get("/health", (req, res) => {
 app.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
+
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -175,10 +198,10 @@ app.post("/login", async (req, res) => {
 // Save or Update Student Profile
 app.post("/student-profile", async (req, res) => {
   try {
-    const { userId, userEmail, studentId, name, email, phone, classBatch, department, semester } = req.body;
+    const { userId, userEmail, studentId, name, email, phone, department, yearOfStudy } = req.body;
 
     // Validation
-    if (!studentId || !name || !email || !classBatch || !department || !semester) {
+    if (!studentId || !name || !email || !department || !yearOfStudy) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -189,9 +212,8 @@ app.post("/student-profile", async (req, res) => {
       existingProfile.name = name;
       existingProfile.email = email;
       existingProfile.phone = phone;
-      existingProfile.classBatch = classBatch;
       existingProfile.department = department;
-      existingProfile.semester = semester;
+      existingProfile.yearOfStudy = yearOfStudy;
       existingProfile.profileUpdatedAt = new Date();
       await existingProfile.save();
       res.json({ message: "Profile updated successfully", profile: existingProfile });
@@ -204,9 +226,8 @@ app.post("/student-profile", async (req, res) => {
         name,
         email,
         phone,
-        classBatch,
         department,
-        semester
+        yearOfStudy
       });
       await profile.save();
       res.json({ message: "Profile created successfully", profile });
@@ -275,6 +296,13 @@ app.post("/calculate", async (req, res) => {
     const attendanceScore = (Number(sessionParticipation) + Number(workshopAttendance)) / 2;
 
     const overall = codingScore * 0.3 + aptitudeScore * 0.25 + communicationScore * 0.25 + attendanceScore * 0.2;
+    const overallScore = Math.round(overall);
+    let status = "Not Ready";
+    if (overallScore >= 80) {
+      status = "Ready";
+    } else if (overallScore >= 60) {
+      status = "Moderately Ready";
+    }
 
     // Save to database
     const assessment = new PlacementReadiness({
@@ -293,7 +321,8 @@ app.post("/calculate", async (req, res) => {
       aptitudeScore: Math.round(aptitudeScore),
       communicationScore: Math.round(communicationScore),
       attendanceScore: Math.round(attendanceScore),
-      overall: Math.round(overall)
+      overall: overallScore,
+      status: status
     });
 
     await assessment.save();
@@ -304,7 +333,8 @@ app.post("/calculate", async (req, res) => {
       aptitudeScore: Math.round(aptitudeScore),
       communicationScore: Math.round(communicationScore),
       attendanceScore: Math.round(attendanceScore),
-      overall: Math.round(overall)
+      overall: overallScore,
+      status: status
     });
 
   } catch (error) {
@@ -320,44 +350,76 @@ app.post("/exam-calculate", async (req, res) => {
       studentId,
       studentEmail,
       studentName,
-      internalAssignments,
-      assignmentCompletion,
-      attendance,
-      unitTestMarks,
-      midSemExam
+      department,
+      subjects
     } = req.body;
 
-    // Weighted calculation
+    // Calculate average scores across all subjects
+    const totalSubjects = subjects.length;
+    const avgInternalMarks = subjects.reduce((sum, subj) => sum + Number(subj.internalMarks), 0) / totalSubjects;
+    const avgAssignmentCompletion = subjects.reduce((sum, subj) => sum + Number(subj.assignmentCompletion), 0) / totalSubjects;
+    const avgAttendance = subjects.reduce((sum, subj) => sum + Number(subj.attendance), 0) / totalSubjects;
+    const avgStudyHours = subjects.reduce((sum, subj) => sum + Number(subj.studyHours), 0) / totalSubjects;
+
+    // New weighted calculation with normalized study hours
+    // Study hours are on a 0-10 scale, normalize to percentage (0-100)
+    const normalizedStudyHours = (avgStudyHours / 10) * 100;
+
     const overall =
-      Number(internalAssignments) * 0.2 +
-      Number(assignmentCompletion) * 0.15 +
-      Number(attendance) * 0.15 +
-      Number(unitTestMarks) * 0.25 +
-      Number(midSemExam) * 0.25;
+      avgInternalMarks * 0.30 +           // 30% - Internal marks
+      avgAssignmentCompletion * 0.25 +    // 25% - Assignment completion
+      avgAttendance * 0.25 +              // 25% - Attendance
+      normalizedStudyHours * 0.20;        // 20% - Study hours (normalized)
+
+    const overallScore = Math.round(overall);
+    let status = "Not Ready";
+    if (overallScore >= 80) {
+      status = "Ready";
+    } else if (overallScore >= 60) {
+      status = "Moderately Ready";
+    }
 
     // Save to database
     const assessment = new ExamReadiness({
       studentId,
       userEmail: studentEmail,
       studentName,
-      internalAssignments: Number(internalAssignments),
-      assignmentCompletion: Number(assignmentCompletion),
-      attendance: Number(attendance),
-      unitTestMarks: Number(unitTestMarks),
-      midSemExam: Number(midSemExam),
-      overall: Math.round(overall)
+      department,
+      subjects: subjects.map(subj => ({
+        code: subj.code,
+        name: subj.name,
+        internalMarks: Number(subj.internalMarks),
+        assignmentCompletion: Number(subj.assignmentCompletion),
+        attendance: Number(subj.attendance),
+        studyHours: Number(subj.studyHours)
+      })),
+      attendance: Number(avgAttendance),
+      studyHours: Number(avgStudyHours),
+      overall: overallScore,
+      status: status
     });
 
     await assessment.save();
 
     res.json({
       message: "Assessment saved successfully",
-      internalAssignments: Math.round(internalAssignments),
-      assignmentCompletion: Math.round(assignmentCompletion),
-      attendance: Math.round(attendance),
-      unitTestMarks: Math.round(unitTestMarks),
-      midSemExam: Math.round(midSemExam),
-      overall: Math.round(overall)
+      department,
+      subjects: subjects.map(subj => ({
+        code: subj.code,
+        name: subj.name,
+        internalMarks: Math.round(Number(subj.internalMarks)),
+        assignmentCompletion: Math.round(Number(subj.assignmentCompletion)),
+        attendance: Math.round(Number(subj.attendance)),
+        studyHours: Number(subj.studyHours)
+      })),
+      attendance: Math.round(avgAttendance),
+      studyHours: avgStudyHours,
+      avgInternalMarks: Math.round(avgInternalMarks),
+      avgAssignmentCompletion: Math.round(avgAssignmentCompletion),
+      avgAttendance: Math.round(avgAttendance),
+      avgStudyHours: Math.round(avgStudyHours),
+      overall: overallScore,
+      status: status
     });
   } catch (error) {
     console.error(error);
@@ -414,14 +476,38 @@ app.get("/my-placement-attempts/:studentEmail", async (req, res) => {
 // ================= Get All Assessments for Admin =================
 app.get("/all-assessments", async (req, res) => {
   try {
-    const examResults = await ExamReadiness.find().sort({ createdAt: -1 });
-    const placementResults = await PlacementReadiness.find().sort({ createdAt: -1 });
+    const examResults = await ExamReadiness.find().lean().sort({ createdAt: -1 });
+    const placementResults = await PlacementReadiness.find().lean().sort({ createdAt: -1 });
+
+    const enrichedExamResults = examResults.map(exam => {
+      let avgInternalMarks = 0;
+      let avgAssignmentCompletion = 0;
+      let avgAttendance = exam.attendance || 0;
+      let avgStudyHours = exam.studyHours || 0;
+
+      if (exam.subjects && exam.subjects.length > 0) {
+        const total = exam.subjects.length;
+        avgInternalMarks = exam.subjects.reduce((sum, s) => sum + Number(s.internalMarks || 0), 0) / total;
+        avgAssignmentCompletion = exam.subjects.reduce((sum, s) => sum + Number(s.assignmentCompletion || 0), 0) / total;
+        avgAttendance = exam.subjects.reduce((sum, s) => sum + Number(s.attendance || 0), 0) / total;
+        avgStudyHours = exam.subjects.reduce((sum, s) => sum + Number(s.studyHours || 0), 0) / total;
+      }
+
+      return {
+        ...exam,
+        avgInternalMarks: Math.round(avgInternalMarks),
+        avgAssignmentCompletion: Math.round(avgAssignmentCompletion),
+        avgAttendance: Math.round(avgAttendance),
+        avgStudyHours: Math.round(avgStudyHours),
+        subjectDetails: exam.subjects 
+      };
+    });
 
     res.json({
-      exam: examResults,
+      exam: enrichedExamResults,
       placement: placementResults,
       totalStudents: new Set([
-        ...examResults.map(r => r.userEmail),
+        ...enrichedExamResults.map(r => r.userEmail),
         ...placementResults.map(r => r.userEmail)
       ]).size
     });
@@ -435,9 +521,104 @@ app.get("/all-assessments", async (req, res) => {
 app.get("/students", async (req, res) => {
   try {
     const students = await User.find({ role: "student" });
-    res.json(students);
+    const profiles = await StudentProfile.find();
+    
+    // Combine student account info with profile info
+    const combinedStudents = students.map(student => {
+      const profile = profiles.find(p => p.userEmail === student.email);
+      return {
+        _id: student._id,
+        name: profile?.name || student.name,
+        email: student.email,
+        role: student.role,
+        studentId: profile?.studentId || "N/A",
+        phone: profile?.phone || "N/A",
+        department: profile?.department || "N/A",
+        yearOfStudy: profile?.yearOfStudy || "N/A",
+        registeredDate: student._id.getTimestamp()
+      };
+    });
+    
+    res.json(combinedStudents);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// ================= Delete Student (for Admin Dashboard) =================
+app.delete("/students/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find the user to get their email before deleting
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    
+    // Delete their user account
+    await User.findByIdAndDelete(id);
+    
+    // Also delete their profile if it exists (using email as reference per schema)
+    await StudentProfile.findOneAndDelete({ userEmail: user.email });
+    
+    // Optional: We could also delete their readiness records, but we'll leave them for now or as needed
+    
+    res.json({ message: "Student deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// ================= Contact Message APIs =================
+// Handle OPTIONS request for CORS
+app.options("/api/contact", (req, res) => {
+  res.status(200).end();
+});
+
+// POST /api/contact - Save contact message
+app.post("/api/contact", async (req, res) => {
+  console.log("Received contact message request");
+  console.log("Request body:", req.body);
+  console.log("Request headers:", req.headers);
+
+  try {
+    const { name, email, subject, message } = req.body;
+
+    console.log("Extracted data:", { name, email, subject, message });
+
+    // Validation
+    if (!name || !email || !subject || !message) {
+      console.log("Validation failed - missing fields");
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const contactMessage = new ContactMessage({
+      name,
+      email,
+      subject,
+      message
+    });
+
+    await contactMessage.save();
+    console.log("Contact message saved successfully");
+
+    res.status(201).json({ message: "Message stored successfully" });
+  } catch (error) {
+    console.error("Contact message save error:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+// GET /api/contact - Get all contact messages
+app.get("/api/contact", async (req, res) => {
+  try {
+    const messages = await ContactMessage.find().sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (error) {
+    console.error("Contact messages fetch error:", error);
     res.status(500).json({ message: "Server Error" });
   }
 });
@@ -446,7 +627,7 @@ app.get("/students", async (req, res) => {
 // Wait for MongoDB to connect, then start the server
 mongoose.connection.once("open", async () => {
   await createAdmin();
-  
+
   app.listen(5000, () => {
     console.log("✅ Server running on port 5000");
   });

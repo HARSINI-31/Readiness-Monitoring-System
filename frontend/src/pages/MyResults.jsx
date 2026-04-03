@@ -4,12 +4,48 @@ import { Card, Button } from "react-bootstrap";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import { useUser } from "../context/UserContext";
+import { useTheme } from "../context/ThemeContext";
+import { getDashboardNav } from "../utils/navConfig";
 
 function MyResults() {
   const navigate = useNavigate();
-  const { user, logout } = useUser();
+  const { user, studentProfile, logout } = useUser();
+  const { isDarkMode, theme } = useTheme();
+  const [profileCheckLoading, setProfileCheckLoading] = useState(true);
+
+  useEffect(() => {
+    if (user && user.role !== "admin" && !studentProfile) {
+      navigate("/student-profile", { 
+        state: { message: "Please complete your profile to access readiness assessments." } 
+      });
+    } else {
+      setProfileCheckLoading(false);
+    }
+  }, [user, studentProfile, navigate]);
+
   const [attempts, setAttempts] = useState({ exam: [], placement: [] });
   const [loading, setLoading] = useState(true);
+  const [expandedExamRow, setExpandedExamRow] = useState(null);
+  const [expandedPlacementRow, setExpandedPlacementRow] = useState(null);
+
+  const toggleExamRow = (idx) => {
+    setExpandedExamRow(expandedExamRow === idx ? null : idx);
+  };
+
+  const togglePlacementRow = (idx) => {
+    setExpandedPlacementRow(expandedPlacementRow === idx ? null : idx);
+  };
+
+  const calculateAverages = (subjects) => {
+    if (!subjects || subjects.length === 0) return { internal: "-", assignment: "-", attendance: "-", studyHours: "-" };
+    const total = subjects.length;
+    const internal = Math.round(subjects.reduce((sum, s) => sum + Number(s.internalMarks || 0), 0) / total);
+    const assignment = Math.round(subjects.reduce((sum, s) => sum + Number(s.assignmentCompletion || 0), 0) / total);
+    const attendance = Math.round(subjects.reduce((sum, s) => sum + Number(s.attendance || 0), 0) / total);
+    const studyHoursValue = subjects.reduce((sum, s) => sum + Number(s.studyHours || 0), 0) / total;
+    const studyHours = studyHoursValue % 1 === 0 ? studyHoursValue : studyHoursValue.toFixed(1);
+    return { internal, assignment, attendance, studyHours };
+  };
 
   useEffect(() => {
     if (user?.userEmail) {
@@ -39,7 +75,7 @@ function MyResults() {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   // Sort attempts by date (latest first)
@@ -52,34 +88,34 @@ function MyResults() {
     });
   };
 
-  const getStatusColor = (overall) => {
-    if (overall >= 85) return "#10b981";
-    if (overall >= 70) return "#f59e0b";
-    return "#ef4444";
+  const getStatusStyle = (overall) => {
+    if (isDarkMode) {
+      if (overall >= 80) return { color: "#fff", bg: "#10b981", label: "Ready" };
+      if (overall >= 60) return { color: "#fff", bg: "#f59e0b", label: "Moderately Ready" };
+      return { color: "#fff", bg: "#ef4444", label: "Not Ready" };
+    } else {
+      if (overall >= 80) return { color: "#10B981", bg: "#D1FAE5", label: "Ready" };
+      if (overall >= 60) return { color: "#F59E0B", bg: "#FEF3C7", label: "Moderately Ready" };
+      return { color: "#EF4444", bg: "#FEE2E2", label: "Not Ready" };
+    }
   };
 
-  const getStatusText = (overall) => {
-    if (overall >= 85) return "Ready";
-    if (overall >= 70) return "Moderately Ready";
-    return "Not Ready";
-  };
+  if (profileCheckLoading && user?.role !== "admin") {
+    return <div style={{ background: theme.bg, minHeight: "100vh" }}></div>;
+  }
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #0f172a, #1e293b, #334155)",
-        color: "#fff",
+        background: theme.bg,
+        color: theme.mainText,
         display: "flex",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}
     >
       <Sidebar
-        navItems={[
-          { label: "Home", path: "/", icon: "🏠" },
-          { label: "Exam Readiness", path: "/exam-readiness", icon: "📚" },
-          { label: "Placement Readiness", path: "/placement-readiness", icon: "💼" },
-          { label: "Profile", path: "/student-profile", icon: "👤" },
-        ]}
+        navItems={getDashboardNav()}
         showLogout={true}
         onLogout={handleLogout}
         userName={user?.name || "Student"}
@@ -105,108 +141,151 @@ function MyResults() {
           <div style={{ display: "grid", gap: "40px" }}>
             {/* EXAM READINESS SECTION */}
             <div>
-              <h2 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "20px", color: "#60a5fa" }}>
+              <h2 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "20px", color: isDarkMode ? "#60a5fa" : "#3b82f6" }}>
                 📝 Exam Readiness Attempts
               </h2>
               {sortAttempts(attempts.exam).length > 0 ? (
-                <div style={{ overflowX: "auto", backgroundColor: "#0f172a", borderRadius: "12px", padding: "20px", border: "1px solid #334155" }}>
+                <div style={{ overflowX: "auto", backgroundColor: theme.cardBg, borderRadius: "12px", padding: "20px", border: theme.cardBorder !== "none" ? theme.cardBorder : "1px solid #E2E8F0", boxShadow: theme.cardShadow }}>
                   <table
                     style={{
                       width: "100%",
-                      color: "#cbd5e1",
+                      color: theme.mainText,
                       fontSize: "14px",
                       borderCollapse: "collapse",
                     }}
                   >
                     <thead>
-                      <tr style={{ borderBottom: "2px solid #3b82f6" }}>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Internal
-                        </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Completion %
-                        </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Attendance %
-                        </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Unit Test
-                        </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Mid-Sem
-                        </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Overall %
-                        </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Status
-                        </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#60a5fa", fontWeight: "600" }}>
-                          Date
-                        </th>
+                      <tr style={{ borderBottom: `2px solid ${isDarkMode ? "#3b82f6" : "#E2E8F0"}`, backgroundColor: theme.tableHeaderBg }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Internal Avg</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Assignment Avg</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Attendance Avg</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Study Hours Avg</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Overall %</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Status</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Date</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#64748B", fontWeight: "600" }}>Details</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {sortAttempts(attempts.exam).map((attempt, idx) => (
-                        <tr
-                          key={idx}
-                          style={{
-                            borderBottom: "1px solid #334155",
-                            backgroundColor: idx % 2 === 0 ? "rgba(30, 41, 59, 0.5)" : "transparent",
-                          }}
-                        >
-                          <td style={{ padding: "12px" }}>
-                            {attempt.internalAssignments || "-"}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {attempt.assignmentCompletion || "-"}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {attempt.attendance || "-"}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {attempt.unitTestMarks || "-"}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {attempt.midSemExam || "-"}
-                          </td>
-                          <td style={{ padding: "12px", fontWeight: "bold" }}>
-                            {attempt.overall || "-"}%
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            <span
+                      {sortAttempts(attempts.exam).map((attempt, idx) => {
+                        const avgs = calculateAverages(attempt.subjects);
+                        return (
+                          <React.Fragment key={idx}>
+                            <tr
                               style={{
-                                backgroundColor: getStatusColor(attempt.overall || 0),
-                                color: "#fff",
-                                padding: "4px 12px",
-                                borderRadius: "4px",
-                                fontSize: "12px",
-                                fontWeight: "600",
+                                borderBottom: `1px solid ${theme.tableBorder}`,
+                                backgroundColor: idx % 2 === 0 ? theme.tableRowHover : "transparent",
                               }}
                             >
-                              {getStatusText(attempt.overall || 0)}
-                            </span>
-                          </td>
-                          <td style={{ padding: "12px", fontSize: "12px" }}>
-                            {attempt.createdAt
-                              ? new Date(attempt.createdAt).toLocaleDateString()
-                              : "-"}
-                          </td>
-                        </tr>
-                      ))}
+                              <td style={{ padding: "12px" }}>
+                                {attempt.avgInternalMarks || avgs.internal}{attempt.avgInternalMarks || avgs.internal !== "-" ? "%" : ""}
+                              </td>
+                              <td style={{ padding: "12px" }}>
+                                {attempt.avgAssignmentCompletion || avgs.assignment}{attempt.avgAssignmentCompletion || avgs.assignment !== "-" ? "%" : ""}
+                              </td>
+                              <td style={{ padding: "12px" }}>
+                                {attempt.avgAttendance || avgs.attendance}{attempt.avgAttendance || avgs.attendance !== "-" ? "%" : ""}
+                              </td>
+                              <td style={{ padding: "12px" }}>
+                                {attempt.avgStudyHours || avgs.studyHours}
+                              </td>
+                              <td style={{ padding: "12px", fontWeight: "bold" }}>
+                                {attempt.overall || "-"}%
+                              </td>
+                              <td style={{ padding: "12px" }}>
+                                <span
+                                  style={{
+                                    backgroundColor: getStatusStyle(attempt.overall || 0).bg,
+                                    color: getStatusStyle(attempt.overall || 0).color,
+                                    padding: "4px 12px",
+                                    borderRadius: "4px",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  {getStatusStyle(attempt.overall || 0).label}
+                                </span>
+                              </td>
+                              <td style={{ padding: "12px", fontSize: "12px", color: theme.mainText }}>
+                                {attempt.createdAt
+                                  ? new Date(attempt.createdAt).toLocaleDateString()
+                                  : "-"}
+                              </td>
+                              <td style={{ padding: "12px" }}>
+                                <Button
+                                  variant={isDarkMode ? "outline-primary" : "primary"}
+                                  size="sm"
+                                  onClick={() => toggleExamRow(idx)}
+                                  style={{
+                                    fontSize: "12px",
+                                    padding: "2px 10px",
+                                    backgroundColor: isDarkMode ? "transparent" : theme.primaryButton,
+                                    borderColor: theme.primaryButton,
+                                    color: isDarkMode ? theme.primaryButton : "#fff",
+                                  }}
+                                >
+                                  {expandedExamRow === idx ? "Hide" : "View"}
+                                </Button>
+                              </td>
+                            </tr>
+                            {expandedExamRow === idx && (
+                              <tr>
+                                <td colSpan="8" style={{ padding: "0" }}>
+                                  <div
+                                    style={{
+                                      padding: "15px 20px",
+                                      background: theme.cardBg,
+                                      margin: "10px",
+                                      borderRadius: "8px",
+                                      border: theme.cardBorder,
+                                      boxShadow: theme.cardShadow
+                                    }}
+                                  >
+                                    <h4 style={{ color: isDarkMode ? "#60a5fa" : "#3B82F6", fontSize: "16px", marginBottom: "15px" }}>Subject-wise Breakdown</h4>
+                                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                                      <thead>
+                                        <tr style={{ borderBottom: "1px solid #3b82f6" }}>
+                                          <th style={{ padding: "8px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#3B82F6", borderBottom: `1px solid ${isDarkMode ? "#3b82f6" : theme.tableBorder}` }}>Subject Code</th>
+                                          <th style={{ padding: "8px", textAlign: "left", color: isDarkMode ? "#60a5fa" : "#3B82F6" }}>Subject Name</th>
+                                          <th style={{ padding: "8px", textAlign: "center", color: isDarkMode ? "#60a5fa" : "#3B82F6" }}>Internal</th>
+                                          <th style={{ padding: "8px", textAlign: "center", color: isDarkMode ? "#60a5fa" : "#3B82F6" }}>Assignment</th>
+                                          <th style={{ padding: "8px", textAlign: "center", color: isDarkMode ? "#60a5fa" : "#3B82F6" }}>Attendance</th>
+                                          <th style={{ padding: "8px", textAlign: "center", color: isDarkMode ? "#60a5fa" : "#3B82F6" }}>Study Hours</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {attempt.subjects?.map((sub, sIdx) => (
+                                          <tr key={sIdx} style={{ borderBottom: `1px solid ${theme.tableBorder}` }}>
+                                            <td style={{ padding: "8px" }}>{sub.code}</td>
+                                            <td style={{ padding: "8px" }}>{sub.name}</td>
+                                            <td style={{ padding: "8px", textAlign: "center" }}>{sub.internalMarks}%</td>
+                                            <td style={{ padding: "8px", textAlign: "center" }}>{sub.assignmentCompletion}%</td>
+                                            <td style={{ padding: "8px", textAlign: "center" }}>{sub.attendance}%</td>
+                                            <td style={{ padding: "8px", textAlign: "center" }}>{sub.studyHours}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
               ) : (
                 <Card
                   style={{
-                    background: "rgba(255, 255, 255, 0.05)",
+                    background: theme.cardBg,
                     borderRadius: "12px",
                     backdropFilter: "blur(10px)",
                     padding: "30px",
-                    color: "#fff",
+                    color: theme.mainText,
                     textAlign: "center",
-                    border: "1px solid #334155",
+                    border: theme.cardBorder !== "none" ? theme.cardBorder : "1px solid rgba(203, 213, 225, 0.2)",
                   }}
                 >
                   <p style={{ fontSize: "18px", margin: "20px 0" }}>No exam readiness assessments yet.</p>
@@ -228,88 +307,145 @@ function MyResults() {
 
             {/* PLACEMENT READINESS SECTION */}
             <div>
-              <h2 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "20px", color: "#34d399" }}>
+              <h2 style={{ fontSize: "28px", fontWeight: "bold", marginBottom: "20px", color: isDarkMode ? "#34d399" : "#10B981" }}>
                 💼 Placement Readiness Attempts
               </h2>
               {sortAttempts(attempts.placement).length > 0 ? (
-                <div style={{ overflowX: "auto", backgroundColor: "#0f172a", borderRadius: "12px", padding: "20px", border: "1px solid #334155" }}>
+                <div style={{ overflowX: "auto", backgroundColor: theme.cardBg, borderRadius: "12px", padding: "20px", border: theme.cardBorder !== "none" ? theme.cardBorder : "1px solid #E2E8F0", boxShadow: theme.cardShadow }}>
                   <table
                     style={{
                       width: "100%",
-                      color: "#cbd5e1",
+                      color: theme.mainText,
                       fontSize: "14px",
                       borderCollapse: "collapse",
                     }}
                   >
                     <thead>
-                      <tr style={{ borderBottom: "2px solid #10b981" }}>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#34d399", fontWeight: "600" }}>
+                      <tr style={{ borderBottom: `2px solid ${isDarkMode ? "#10b981" : "#E2E8F0"}`, backgroundColor: theme.tableHeaderBg }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
                           Aptitude
                         </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#34d399", fontWeight: "600" }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
                           Technical
                         </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#34d399", fontWeight: "600" }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
                           Communication
                         </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#34d399", fontWeight: "600" }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
                           Coding
                         </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#34d399", fontWeight: "600" }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
                           Overall %
                         </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#34d399", fontWeight: "600" }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
                           Status
                         </th>
-                        <th style={{ padding: "12px", textAlign: "left", color: "#34d399", fontWeight: "600" }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
                           Date
+                        </th>
+                        <th style={{ padding: "12px", textAlign: "left", color: isDarkMode ? "#34d399" : "#64748B", fontWeight: "600" }}>
+                          Details
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {sortAttempts(attempts.placement).map((attempt, idx) => (
-                        <tr
-                          key={idx}
-                          style={{
-                            borderBottom: "1px solid #334155",
-                            backgroundColor: idx % 2 === 0 ? "rgba(30, 41, 59, 0.5)" : "transparent",
-                          }}
-                        >
-                          <td style={{ padding: "12px" }}>
-                            {attempt.aptitudeScore || "-"}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {attempt.codingScore || "-"}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {attempt.communicationScore || "-"}
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            {attempt.attendanceScore || "-"}
-                          </td>
-                          <td style={{ padding: "12px", fontWeight: "bold" }}>
-                            {attempt.overall || "-"}%
-                          </td>
-                          <td style={{ padding: "12px" }}>
-                            <span
-                              style={{
-                                backgroundColor: getStatusColor(attempt.overall || 0),
-                                color: "#fff",
-                                padding: "4px 12px",
-                                borderRadius: "4px",
-                                fontSize: "12px",
-                                fontWeight: "600",
-                              }}
-                            >
-                              {getStatusText(attempt.overall || 0)}
-                            </span>
-                          </td>
-                          <td style={{ padding: "12px", fontSize: "12px" }}>
-                            {attempt.createdAt
-                              ? new Date(attempt.createdAt).toLocaleDateString()
-                              : "-"}
-                          </td>
-                        </tr>
+                        <React.Fragment key={idx}>
+                          <tr
+                            style={{
+                              borderBottom: `1px solid ${theme.tableBorder}`,
+                              backgroundColor: idx % 2 === 0 ? theme.tableRowHover : "transparent",
+                            }}
+                          >
+                            <td style={{ padding: "12px", color: theme.mainText }}>
+                              {attempt.aptitudeScore || "-"}
+                            </td>
+                            <td style={{ padding: "12px", color: theme.mainText }}>
+                              {attempt.codingScore || "-"}
+                            </td>
+                            <td style={{ padding: "12px", color: theme.mainText }}>
+                              {attempt.communicationScore || "-"}
+                            </td>
+                            <td style={{ padding: "12px", color: theme.mainText }}>
+                              {attempt.attendanceScore || "-"}
+                            </td>
+                            <td style={{ padding: "12px", fontWeight: "bold", color: theme.mainText }}>
+                              {attempt.overall || "-"}%
+                            </td>
+                            <td style={{ padding: "12px" }}>
+                              <span
+                                style={{
+                                  backgroundColor: getStatusStyle(attempt.overall || 0).bg,
+                                  color: getStatusStyle(attempt.overall || 0).color,
+                                  padding: "4px 12px",
+                                  borderRadius: "4px",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                {getStatusStyle(attempt.overall || 0).label}
+                              </span>
+                            </td>
+                            <td style={{ padding: "12px", fontSize: "12px", color: theme.mainText }}>
+                              {attempt.createdAt
+                                ? new Date(attempt.createdAt).toLocaleDateString()
+                                : "-"}
+                            </td>
+                            <td style={{ padding: "12px" }}>
+                              <Button
+                                variant={isDarkMode ? "outline-success" : "success"}
+                                size="sm"
+                                onClick={() => togglePlacementRow(idx)}
+                                style={{
+                                  fontSize: "12px",
+                                  padding: "2px 10px",
+                                  backgroundColor: isDarkMode ? "transparent" : "#10b981",
+                                  borderColor: "#10b981",
+                                  color: isDarkMode ? "#10b981" : "#fff",
+                                }}
+                              >
+                                {expandedPlacementRow === idx ? "Hide" : "View"}
+                              </Button>
+                            </td>
+                          </tr>
+                          {expandedPlacementRow === idx && (
+                            <tr>
+                              <td colSpan="8" style={{ padding: "10px", backgroundColor: isDarkMode ? "#020617" : "#F8FAFC" }}>
+                                <div
+                                  style={{
+                                    padding: "15px 20px",
+                                    background: theme.cardBg,
+                                    margin: "10px",
+                                    borderRadius: "8px",
+                                    border: `1px solid ${isDarkMode ? "#10b981" : "#E2E8F0"}`,
+                                    boxShadow: theme.cardShadow
+                                  }}
+                                >
+                                  <h4 style={{ color: isDarkMode ? "#34d399" : "#1E293B", fontSize: "16px", marginBottom: "15px", fontWeight: "700" }}>
+                                    <span>📈</span> Detailed Performance Breakdown
+                                  </h4>
+                                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px" }}>
+                                    {[
+                                      { label: "Coding Assessment", val: attempt.codingAssessment },
+                                      { label: "Problems Solved", val: attempt.problemsSolved },
+                                      { label: "Mock Aptitude", val: attempt.mockAptitude },
+                                      { label: "Logical Score", val: attempt.logicalScore },
+                                      { label: "Mock Interview", val: attempt.mockInterview },
+                                      { label: "GD Score", val: attempt.gdScore },
+                                      { label: "Session Participation", val: attempt.sessionParticipation },
+                                      { label: "Workshop Attendance", val: attempt.workshopAttendance }
+                                    ].map((item, i) => (
+                                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${theme.tableBorder}`, backgroundColor: "transparent" }}>
+                                        <span style={{ color: theme.subText }}>{item.label}:</span>
+                                        <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{item.val || "0"}%</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                       ))}
                     </tbody>
                   </table>
@@ -317,13 +453,13 @@ function MyResults() {
               ) : (
                 <Card
                   style={{
-                    background: "rgba(255, 255, 255, 0.05)",
+                    background: theme.cardBg,
                     borderRadius: "12px",
                     backdropFilter: "blur(10px)",
                     padding: "30px",
-                    color: "#fff",
+                    color: theme.mainText,
                     textAlign: "center",
-                    border: "1px solid #334155",
+                    border: theme.cardBorder !== "none" ? theme.cardBorder : "1px solid rgba(203, 213, 225, 0.2)",
                   }}
                 >
                   <p style={{ fontSize: "18px", margin: "20px 0" }}>No placement readiness assessments yet.</p>

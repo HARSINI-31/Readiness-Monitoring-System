@@ -7,7 +7,7 @@ import { useUser } from "../context/UserContext";
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useUser();
+  const { login, updateStudentProfile } = useUser();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -28,9 +28,7 @@ function Login() {
     try {
       const res = await axios.post("http://localhost:5000/login", formData);
 
-      alert("Login Successful");
-
-      // Store user data in context
+      // Store user data in context first
       login({
         userId: res.data.userId,
         userName: res.data.userName,
@@ -39,9 +37,36 @@ function Login() {
       });
 
       if (res.data.role === "admin") {
-        navigate("/admin");
+        alert("Login Successful");
+        navigate("/admin/dashboard");
       } else {
-        navigate("/readiness");
+        // Check for student profile
+        try {
+          const profileRes = await axios.get(`http://localhost:5000/student-profile-exists/${res.data.userEmail}`);
+          
+          // Consider profile complete ONLY IF it exists AND has required fields
+          const profile = profileRes.data.profile;
+          const isComplete = profileRes.data.exists && 
+                            profile && 
+                            profile.studentId && 
+                            profile.department && 
+                            profile.yearOfStudy;
+
+          if (isComplete) {
+            updateStudentProfile(profile);
+            alert("Login Successful");
+            navigate("/readiness");
+          } else {
+            // Not completely filled, send to profile
+            alert("Please complete your profile to continue.");
+            navigate("/student-profile", { 
+              state: { message: "Please complete your profile to access readiness assessments." } 
+            });
+          }
+        } catch (profileErr) {
+          console.error("Profile check error:", profileErr);
+          navigate("/student-profile");
+        }
       }
 
     } catch (error) {
