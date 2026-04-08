@@ -1,12 +1,22 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
+  const atlasURI = process.env.MONGODB_URI;
+  const localURI = "mongodb://127.0.0.1:27017/ready-monitor";
+
   try {
-    await mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/ready-monitor");
-    console.log("✅ MongoDB Connected");
+    console.log("⏳ Connecting to MongoDB...");
+    await mongoose.connect(atlasURI || localURI);
+    console.log("✅ MongoDB Connected Successfully");
   } catch (error) {
-    console.error("❌ DB Connection Error:", error);
-    process.exit(1);
+    console.error("❌ Atlas Connection Failed, trying local...");
+    try {
+      await mongoose.connect(localURI);
+      console.log("✅ Connected to Local MongoDB");
+    } catch (localError) {
+      console.error("❌ Local connection also failed:", localError.message);
+      process.exit(1);
+    }
   }
 };
 
