@@ -1,11 +1,9 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/readinessDB";
-    await mongoose.connect(mongoURI);
-    console.log("🚀 MongoDB Connected");
+    await mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/ready-monitor");
+    console.log("✅ MongoDB Connected");
   } catch (error) {
     console.error("❌ DB Connection Error:", error);
     process.exit(1);

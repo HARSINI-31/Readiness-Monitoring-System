@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+﻿const mongoose = require("mongoose");
 
 const examReadinessSchema = new mongoose.Schema({
   studentId: String,

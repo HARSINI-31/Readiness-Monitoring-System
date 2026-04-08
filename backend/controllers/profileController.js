@@ -1,4 +1,4 @@
-const StudentProfile = require("../models/StudentProfile");
+﻿const StudentProfile = require("../models/StudentProfile");
 
 // Save or Update Student Profile
 exports.saveOrUpdateProfile = async (req, res) => {

@@ -1,4 +1,4 @@
-const PlacementReadiness = require("../models/PlacementReadiness");
+﻿const PlacementReadiness = require("../models/PlacementReadiness");
 const ExamReadiness = require("../models/ExamReadiness");
 
 // Placement Readiness Calculation API

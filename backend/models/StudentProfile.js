@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+﻿const mongoose = require("mongoose");
 
 const studentProfileSchema = new mongoose.Schema({
   userId: mongoose.Schema.Types.ObjectId,
