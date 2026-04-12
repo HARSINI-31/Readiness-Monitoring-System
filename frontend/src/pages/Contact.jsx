@@ -48,8 +48,8 @@ function Contact() {
     });
 
     try {
-      console.log("Making axios request to:", "http://https://readiness-monitoring-system.onrender.com/api/contact");
-      const response = await axios.post("http://https://readiness-monitoring-system.onrender.com/api/contact", {
+      console.log("Making axios request to:", "https://readiness-monitoring-system.onrender.com/api/contact");
+      const response = await axios.post("https://readiness-monitoring-system.onrender.com/api/contact", {
         name: formData.fullName,
         email: formData.email,
         subject: formData.subject,

@@ -29,9 +29,9 @@ function Admin() {
   const fetchData = async () => {
     try {
       const [studentsRes, assessmentsRes, contactRes] = await Promise.all([
-        axios.get("http://https://readiness-monitoring-system.onrender.com/students"),
-        axios.get("http://https://readiness-monitoring-system.onrender.com/all-assessments"),
-        axios.get("http://https://readiness-monitoring-system.onrender.com/api/contact")
+        axios.get("https://readiness-monitoring-system.onrender.com/students"),
+        axios.get("https://readiness-monitoring-system.onrender.com/all-assessments"),
+        axios.get("https://readiness-monitoring-system.onrender.com/api/contact")
       ]);
       setStudents(studentsRes.data);
       setAssessments(assessmentsRes.data);
@@ -51,7 +51,7 @@ function Admin() {
   const handleDeleteStudent = async (studentId) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await axios.delete(`http://https://readiness-monitoring-system.onrender.com/students/${studentId}`);
+        await axios.delete(`https://readiness-monitoring-system.onrender.com/students/${studentId}`);
         setStudents(students.filter(student => student._id !== studentId));
         alert("Student deleted successfully");
       } catch (error) {

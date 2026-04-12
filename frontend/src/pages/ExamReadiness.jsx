@@ -118,7 +118,7 @@ function ExamReadiness() {
   const fetchAllExamResults = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://https://readiness-monitoring-system.onrender.com/all-exam-results");
+      const res = await axios.get("https://readiness-monitoring-system.onrender.com/all-exam-results");
       setAllResults(res.data || []);
     } catch (error) {
       console.error("Error fetching exam results:", error);
@@ -293,7 +293,7 @@ function ExamReadiness() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://https://readiness-monitoring-system.onrender.com/exam-calculate",
+        "https://readiness-monitoring-system.onrender.com/exam-calculate",
         {
           studentId: studentProfile?.studentId,
           studentEmail: user?.userEmail,

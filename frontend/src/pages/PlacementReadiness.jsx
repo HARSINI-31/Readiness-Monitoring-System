@@ -67,7 +67,7 @@ function PlacementReadiness() {
   const fetchAllPlacementResults = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://https://readiness-monitoring-system.onrender.com/all-placement-results");
+      const res = await axios.get("https://readiness-monitoring-system.onrender.com/all-placement-results");
       setAllResults(res.data || []);
     } catch (error) {
       console.error("Error fetching placement results:", error);
@@ -164,7 +164,7 @@ function PlacementReadiness() {
 
     setLoading(true);
     try {
-      const response = await fetch("http://https://readiness-monitoring-system.onrender.com/calculate", {
+      const response = await fetch("https://readiness-monitoring-system.onrender.com/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

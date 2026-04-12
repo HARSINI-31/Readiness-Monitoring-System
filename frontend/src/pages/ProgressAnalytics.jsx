@@ -38,8 +38,8 @@ function ProgressAnalytics() {
     try {
       const email = user.userEmail;
       const [examRes, placementRes] = await Promise.all([
-        axios.get(`http://https://readiness-monitoring-system.onrender.com/my-exam-attempts/${email}`),
-        axios.get(`http://https://readiness-monitoring-system.onrender.com/my-placement-attempts/${email}`)
+        axios.get(`https://readiness-monitoring-system.onrender.com/my-exam-attempts/${email}`),
+        axios.get(`https://readiness-monitoring-system.onrender.com/my-placement-attempts/${email}`)
       ]);
 
       // Normalize data and sort by date (oldest to newest for charts)

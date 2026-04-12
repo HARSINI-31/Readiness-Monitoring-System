@@ -42,7 +42,7 @@ function StudentProfile() {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await axios.get(`http://https://readiness-monitoring-system.onrender.com/student-profile-exists/${user?.userEmail}`);
+      const res = await axios.get(`https://readiness-monitoring-system.onrender.com/student-profile-exists/${user?.userEmail}`);
       if (res.data.exists) {
         const profile = res.data.profile;
         setFormData({
@@ -150,7 +150,7 @@ function StudentProfile() {
 
     setLoading(true);
     try {
-      const profileRes = await axios.post("http://https://readiness-monitoring-system.onrender.com/student-profile", {
+      const profileRes = await axios.post("https://readiness-monitoring-system.onrender.com/student-profile", {
         userId: user?.userId,
         userEmail: user?.userEmail,
         ...formData

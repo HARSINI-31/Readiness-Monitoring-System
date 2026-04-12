@@ -24,7 +24,7 @@ function Signup() {
     e.preventDefault();
 
     try {
-      await axios.post("http://https://readiness-monitoring-system.onrender.com/signup", formData);
+      await axios.post("https://readiness-monitoring-system.onrender.com/signup", formData);
       alert("Signup Successful");
       navigate("/login");
     } catch (error) {

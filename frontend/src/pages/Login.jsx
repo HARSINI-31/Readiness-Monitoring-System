@@ -26,7 +26,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://https://readiness-monitoring-system.onrender.com/login", formData);
+      const res = await axios.post("https://readiness-monitoring-system.onrender.com/login", formData);
 
       // Store user data in context first
       login({
@@ -42,7 +42,7 @@ function Login() {
       } else {
         // Check for student profile
         try {
-          const profileRes = await axios.get(`http://https://readiness-monitoring-system.onrender.com/student-profile-exists/${res.data.userEmail}`);
+          const profileRes = await axios.get(`https://readiness-monitoring-system.onrender.com/student-profile-exists/${res.data.userEmail}`);
 
           // Consider profile complete ONLY IF it exists AND has required fields
           const profile = profileRes.data.profile;
