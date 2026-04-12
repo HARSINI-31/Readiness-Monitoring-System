@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
-  const atlasURI = process.env.MONGODB_URI;
+  const atlasURI = process.env.MONGO_URI;
   const localURI = "mongodb://127.0.0.1:27017/ready-monitor";
 
   try {

@@ -15,10 +15,24 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+
+const allowedOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(",") 
+  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(",") : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 // Connect Database
@@ -33,9 +47,19 @@ connectDB().then(() => {
   app.use("/", adminRoutes);
   app.use("/api/contact", contactRoutes);
 
+  // Root redirect to health
+  app.get("/", (req, res) => {
+    res.redirect("/health");
+  });
+
   // Health Check
   app.get("/health", (req, res) => {
-    res.json({ status: "Server is running", db: "Connected" });
+    res.json({ 
+      status: "Server is running", 
+      db: "Connected",
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'development'
+    });
   });
 
   const PORT = process.env.PORT || 5000;
