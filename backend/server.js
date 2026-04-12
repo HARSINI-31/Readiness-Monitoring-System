@@ -16,17 +16,30 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-const allowedOrigins = process.env.CORS_ORIGINS 
-  ? process.env.CORS_ORIGINS.split(",") 
-  : ['http://https://readiness-monitoring-system.onrender.com:3000', 'http://https://readiness-monitoring-system.onrender.com:3001', 'http://https://readiness-monitoring-system.onrender.com:3002'];
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173",
+  "https://readiness-monitoring-system.onrender.com"
+];
+
+if (process.env.CORS_ORIGINS) {
+  allowedOrigins.push(...process.env.CORS_ORIGINS.split(","));
+}
 
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    
+    const isAllowed = allowedOrigins.includes(origin) || 
+                      origin.endsWith(".vercel.app") || 
+                      process.env.NODE_ENV === 'development';
+                      
+    if (isAllowed) {
       return callback(null, true);
     } else {
+      console.log("CORS blocked origin:", origin);
       return callback(new Error('Not allowed by CORS'));
     }
   },
