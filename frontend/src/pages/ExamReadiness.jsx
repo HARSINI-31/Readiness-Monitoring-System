@@ -16,14 +16,14 @@ function ExamReadiness() {
 
   useEffect(() => {
     if (user && user.role !== "admin") {
-      const isComplete = studentProfile && 
-                        studentProfile.studentId && 
-                        studentProfile.department && 
-                        studentProfile.yearOfStudy;
+      const isComplete = studentProfile &&
+        studentProfile.studentId &&
+        studentProfile.department &&
+        studentProfile.yearOfStudy;
 
       if (!isComplete) {
-        navigate("/student-profile", { 
-          state: { message: "Please complete your profile to access readiness assessments." } 
+        navigate("/student-profile", {
+          state: { message: "Please complete your profile to access readiness assessments." }
         });
       } else {
         setProfileCheckLoading(false);
@@ -96,8 +96,8 @@ function ExamReadiness() {
         attendance: "",
         studyHours: ""
       }));
-      setFormData(prev => ({ 
-        ...prev, 
+      setFormData(prev => ({
+        ...prev,
         subjects,
         department: studentProfile.department // Store the department in form state
       }));
@@ -118,7 +118,7 @@ function ExamReadiness() {
   const fetchAllExamResults = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/all-exam-results");
+      const res = await axios.get("http://https://readiness-monitoring-system.onrender.com/all-exam-results");
       setAllResults(res.data || []);
     } catch (error) {
       console.error("Error fetching exam results:", error);
@@ -189,12 +189,12 @@ function ExamReadiness() {
       } else {
         delete nextErrors[specificErrorKey];
       }
-      
+
       // If no errors left, clear general error too
       if (Object.keys(nextErrors).length === 0) {
         setGeneralError("");
       }
-      
+
       return nextErrors;
     });
   };
@@ -202,8 +202,8 @@ function ExamReadiness() {
   const isFormValid = () => {
     if (Object.keys(errors).length > 0) return false;
     if (formData.subjects.length === 0) return false;
-    
-    return formData.subjects.every(subject => 
+
+    return formData.subjects.every(subject =>
       subject.internalMarks !== "" && subject.internalMarks >= 0 && subject.internalMarks <= 100 &&
       subject.assignmentCompletion !== "" && subject.assignmentCompletion >= 0 && subject.assignmentCompletion <= 100 &&
       subject.attendance !== "" && subject.attendance >= 0 && subject.attendance <= 100 &&
@@ -293,7 +293,7 @@ function ExamReadiness() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:5000/exam-calculate",
+        "http://https://readiness-monitoring-system.onrender.com/exam-calculate",
         {
           studentId: studentProfile?.studentId,
           studentEmail: user?.userEmail,
@@ -638,15 +638,15 @@ function ExamReadiness() {
             <p style={{ color: theme.subText, fontSize: "18px", marginBottom: "30px" }}>
               Please complete your profile to start the readiness assessment.
             </p>
-            <Button 
-              style={{ 
-                background: "linear-gradient(135deg, #3b82f6, #1e40af)", 
-                border: "none", 
-                borderRadius: "25px", 
-                padding: "12px 35px", 
+            <Button
+              style={{
+                background: "linear-gradient(135deg, #3b82f6, #1e40af)",
+                border: "none",
+                borderRadius: "25px",
+                padding: "12px 35px",
                 fontWeight: "600",
-                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.4)" 
-              }} 
+                boxShadow: "0 4px 15px rgba(59, 130, 246, 0.4)"
+              }}
               onClick={() => navigate("/student-profile")}
             >
               Complete Profile Now

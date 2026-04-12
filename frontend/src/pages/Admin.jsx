@@ -30,9 +30,9 @@ function Admin() {
   const fetchData = async () => {
     try {
       const [studentsRes, assessmentsRes, contactRes] = await Promise.all([
-        axios.get("http://localhost:5000/students"),
-        axios.get("http://localhost:5000/all-assessments"),
-        axios.get("http://localhost:5000/api/contact")
+        axios.get("http://https://readiness-monitoring-system.onrender.com/students"),
+        axios.get("http://https://readiness-monitoring-system.onrender.com/all-assessments"),
+        axios.get("http://https://readiness-monitoring-system.onrender.com/api/contact")
       ]);
       setStudents(studentsRes.data);
       setAssessments(assessmentsRes.data);
@@ -52,7 +52,7 @@ function Admin() {
   const handleDeleteStudent = async (studentId) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await axios.delete(`http://localhost:5000/students/${studentId}`);
+        await axios.delete(`http://https://readiness-monitoring-system.onrender.com/students/${studentId}`);
         setStudents(students.filter(student => student._id !== studentId));
         alert("Student deleted successfully");
       } catch (error) {
@@ -249,27 +249,27 @@ function Admin() {
                             </thead>
                             <tbody>
                               {deptStudents.map((student, index) => (
-                                 <React.Fragment key={index}>
-                                    <tr key={index} style={{ borderColor: theme.tableBorder, backgroundColor: theme.cardBg }}>
-                                      <td>{student.studentId || "-"}</td>
-                                      <td>{student.name}</td>
-                                      <td>{student.email}</td>
-                                      <td>{student.phone || "-"}</td>
-                                      <td>{student.department || "-"}</td>
-                                      <td>{student.yearOfStudy || "-"}</td>
-                                      <td>{student.registeredDate ? new Date(student.registeredDate).toLocaleDateString() : "-"}</td>
-                                      <td>
-                                        <div style={{ display: "flex", gap: "8px" }}>
-                                          <Button
-                                            variant="outline-danger"
-                                            size="sm"
-                                            onClick={() => handleDeleteStudent(student._id)}
-                                          >
-                                            Delete
-                                          </Button>
-                                        </div>
-                                      </td>
-                                    </tr>
+                                <React.Fragment key={index}>
+                                  <tr key={index} style={{ borderColor: theme.tableBorder, backgroundColor: theme.cardBg }}>
+                                    <td>{student.studentId || "-"}</td>
+                                    <td>{student.name}</td>
+                                    <td>{student.email}</td>
+                                    <td>{student.phone || "-"}</td>
+                                    <td>{student.department || "-"}</td>
+                                    <td>{student.yearOfStudy || "-"}</td>
+                                    <td>{student.registeredDate ? new Date(student.registeredDate).toLocaleDateString() : "-"}</td>
+                                    <td>
+                                      <div style={{ display: "flex", gap: "8px" }}>
+                                        <Button
+                                          variant="outline-danger"
+                                          size="sm"
+                                          onClick={() => handleDeleteStudent(student._id)}
+                                        >
+                                          Delete
+                                        </Button>
+                                      </div>
+                                    </td>
+                                  </tr>
                                 </React.Fragment>
                               ))}
                             </tbody>
@@ -393,17 +393,17 @@ function Admin() {
                                       </div>
                                     </div>
                                   </div>
-                                   <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                                     <div
-                                       style={{
-                                         fontSize: "24px",
-                                         transition: "transform 0.3s ease",
-                                         transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                       }}
-                                     >
-                                       ▼
-                                     </div>
-                                   </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                                    <div
+                                      style={{
+                                        fontSize: "24px",
+                                        transition: "transform 0.3s ease",
+                                        transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                                      }}
+                                    >
+                                      ▼
+                                    </div>
+                                  </div>
                                 </div>
                               </Card>
 
@@ -499,69 +499,69 @@ function Admin() {
                                                 : "-"}
                                             </td>
                                             <td style={{ padding: "12px" }}>
-                                               <Button
-                                                 variant={isDarkMode ? "outline-primary" : "primary"}
-                                                 size="sm"
-                                                 onClick={() => {
-                                                   setExpandedAttempt(expandedAttempt === attempt._id ? null : attempt._id);
-                                                 }}
-                                                 style={{
-                                                   backgroundColor: isDarkMode ? "transparent" : theme.primaryButton,
-                                                   borderColor: theme.primaryButton,
-                                                   color: isDarkMode ? theme.primaryButton : "#fff",
-                                                 }}
-                                               >
-                                                 {expandedAttempt === attempt._id ? "Hide" : "View"}
-                                               </Button>
-                                             </td>
-                                           </tr>
-                                           {expandedAttempt === attempt._id && (
-                                             <tr>
-                                               <td colSpan="8" style={{ padding: "15px", backgroundColor: isDarkMode ? "#020617" : "#F8FAFC" }}>
-                                                 <div style={{ padding: "20px", borderRadius: "8px", border: `1px solid ${isDarkMode ? "#3b82f6" : "#E2E8F0"}`, backgroundColor: isDarkMode ? "rgba(59, 130, 246, 0.05)" : "#FFFFFF", boxShadow: theme.cardShadow }}>
-                                                   <h5 style={{ color: isDarkMode ? "#60a5fa" : "#1E293B", marginBottom: "20px", fontSize: "18px", display: "flex", alignItems: "center", gap: "10px", fontWeight: "700" }}>
-                                                     <span>📊</span> Subject-wise Performance Breakdown
-                                                   </h5>
-                                                   
-                                                   <div style={{ overflowX: "auto", marginBottom: "20px" }}>
-                                                     <Table striped bordered hover variant={isDarkMode ? "dark" : "light"} size="sm" style={{ color: theme.mainText, fontSize: "14px", margin: 0 }}>
-                                                       <thead>
-                                                         <tr style={{ borderBottom: "2px solid #3b82f6", backgroundColor: "rgba(59, 130, 246, 0.1)" }}>
-                                                           <th style={{ padding: "10px", textAlign: "left" }}>Code</th>
-                                                           <th style={{ padding: "10px", textAlign: "left" }}>Subject</th>
-                                                           <th style={{ padding: "10px", textAlign: "center" }}>Internal</th>
-                                                           <th style={{ padding: "10px", textAlign: "center" }}>Assignment</th>
-                                                           <th style={{ padding: "10px", textAlign: "center" }}>Attendance</th>
-                                                           <th style={{ padding: "10px", textAlign: "center" }}>Study Hrs</th>
-                                                         </tr>
-                                                       </thead>
-                                                       <tbody>
-                                                         {(attempt.subjects || attempt.subjectDetails || []).map((sub, sIdx) => (
-                                                           <tr key={sIdx} style={{ borderBottom: "1px solid #1e293b" }}>
-                                                             <td style={{ padding: "10px", fontWeight: "bold", color: "#60a5fa" }}>{sub.code}</td>
-                                                             <td style={{ padding: "10px" }}>{sub.name}</td>
-                                                             <td style={{ padding: "10px", textAlign: "center" }}>{sub.internalMarks}%</td>
-                                                             <td style={{ padding: "10px", textAlign: "center" }}>{sub.assignmentCompletion}%</td>
-                                                             <td style={{ padding: "10px", textAlign: "center" }}>{sub.attendance}%</td>
-                                                             <td style={{ padding: "10px", textAlign: "center" }}>{sub.studyHours}h</td>
-                                                           </tr>
-                                                         ))}
-                                                       </tbody>
-                                                     </Table>
-                                                   </div>
+                                              <Button
+                                                variant={isDarkMode ? "outline-primary" : "primary"}
+                                                size="sm"
+                                                onClick={() => {
+                                                  setExpandedAttempt(expandedAttempt === attempt._id ? null : attempt._id);
+                                                }}
+                                                style={{
+                                                  backgroundColor: isDarkMode ? "transparent" : theme.primaryButton,
+                                                  borderColor: theme.primaryButton,
+                                                  color: isDarkMode ? theme.primaryButton : "#fff",
+                                                }}
+                                              >
+                                                {expandedAttempt === attempt._id ? "Hide" : "View"}
+                                              </Button>
+                                            </td>
+                                          </tr>
+                                          {expandedAttempt === attempt._id && (
+                                            <tr>
+                                              <td colSpan="8" style={{ padding: "15px", backgroundColor: isDarkMode ? "#020617" : "#F8FAFC" }}>
+                                                <div style={{ padding: "20px", borderRadius: "8px", border: `1px solid ${isDarkMode ? "#3b82f6" : "#E2E8F0"}`, backgroundColor: isDarkMode ? "rgba(59, 130, 246, 0.05)" : "#FFFFFF", boxShadow: theme.cardShadow }}>
+                                                  <h5 style={{ color: isDarkMode ? "#60a5fa" : "#1E293B", marginBottom: "20px", fontSize: "18px", display: "flex", alignItems: "center", gap: "10px", fontWeight: "700" }}>
+                                                    <span>📊</span> Subject-wise Performance Breakdown
+                                                  </h5>
 
-                                                   <div style={{ padding: "15px", backgroundColor: "rgba(59, 130, 246, 0.1)", borderRadius: "8px" }}>
-                                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", fontSize: "14px" }}>
-                                                       <div><strong style={{ opacity: 0.8 }}>Internal Avg:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgInternalMarks}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8 }}>Assignment Avg:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgAssignmentCompletion}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8 }}>Overall Attendance:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgAttendance}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8 }}>Total Study Hours:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgStudyHours}h</span></div>
-                                                     </div>
-                                                   </div>
-                                                 </div>
-                                               </td>
-                                             </tr>
-                                           )}
+                                                  <div style={{ overflowX: "auto", marginBottom: "20px" }}>
+                                                    <Table striped bordered hover variant={isDarkMode ? "dark" : "light"} size="sm" style={{ color: theme.mainText, fontSize: "14px", margin: 0 }}>
+                                                      <thead>
+                                                        <tr style={{ borderBottom: "2px solid #3b82f6", backgroundColor: "rgba(59, 130, 246, 0.1)" }}>
+                                                          <th style={{ padding: "10px", textAlign: "left" }}>Code</th>
+                                                          <th style={{ padding: "10px", textAlign: "left" }}>Subject</th>
+                                                          <th style={{ padding: "10px", textAlign: "center" }}>Internal</th>
+                                                          <th style={{ padding: "10px", textAlign: "center" }}>Assignment</th>
+                                                          <th style={{ padding: "10px", textAlign: "center" }}>Attendance</th>
+                                                          <th style={{ padding: "10px", textAlign: "center" }}>Study Hrs</th>
+                                                        </tr>
+                                                      </thead>
+                                                      <tbody>
+                                                        {(attempt.subjects || attempt.subjectDetails || []).map((sub, sIdx) => (
+                                                          <tr key={sIdx} style={{ borderBottom: "1px solid #1e293b" }}>
+                                                            <td style={{ padding: "10px", fontWeight: "bold", color: "#60a5fa" }}>{sub.code}</td>
+                                                            <td style={{ padding: "10px" }}>{sub.name}</td>
+                                                            <td style={{ padding: "10px", textAlign: "center" }}>{sub.internalMarks}%</td>
+                                                            <td style={{ padding: "10px", textAlign: "center" }}>{sub.assignmentCompletion}%</td>
+                                                            <td style={{ padding: "10px", textAlign: "center" }}>{sub.attendance}%</td>
+                                                            <td style={{ padding: "10px", textAlign: "center" }}>{sub.studyHours}h</td>
+                                                          </tr>
+                                                        ))}
+                                                      </tbody>
+                                                    </Table>
+                                                  </div>
+
+                                                  <div style={{ padding: "15px", backgroundColor: "rgba(59, 130, 246, 0.1)", borderRadius: "8px" }}>
+                                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", fontSize: "14px" }}>
+                                                      <div><strong style={{ opacity: 0.8 }}>Internal Avg:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgInternalMarks}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8 }}>Assignment Avg:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgAssignmentCompletion}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8 }}>Overall Attendance:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgAttendance}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8 }}>Total Study Hours:</strong> <span style={{ color: "#60a5fa" }}>{attempt.avgStudyHours}h</span></div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          )}
                                         </React.Fragment>
                                       ))}
                                     </tbody>
@@ -693,17 +693,17 @@ function Admin() {
                                       </div>
                                     </div>
                                   </div>
-                                   <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                                     <div
-                                       style={{
-                                         fontSize: "24px",
-                                         transition: "transform 0.3s ease",
-                                         transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-                                       }}
-                                     >
-                                       ▼
-                                     </div>
-                                   </div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                                    <div
+                                      style={{
+                                        fontSize: "24px",
+                                        transition: "transform 0.3s ease",
+                                        transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                                      }}
+                                    >
+                                      ▼
+                                    </div>
+                                  </div>
                                 </div>
                               </Card>
 
@@ -715,7 +715,7 @@ function Admin() {
                                     borderRadius: "12px",
                                     padding: "20px",
                                     border: theme.cardBorder !== "none" ? theme.cardBorder : "1px solid #E2E8F0",
-                                     boxShadow: theme.cardShadow,
+                                    boxShadow: theme.cardShadow,
                                     overflowX: "auto",
                                   }}
                                 >
@@ -758,7 +758,7 @@ function Admin() {
                                               <td style={{ padding: "12px" }}>
                                                 <span
                                                   style={{
-                                                   backgroundColor: getStatusStyle(attempt.overall || 0).bg,
+                                                    backgroundColor: getStatusStyle(attempt.overall || 0).bg,
                                                     color: getStatusStyle(attempt.overall || 0).color,
                                                     padding: "4px 12px",
                                                     borderRadius: "4px",
@@ -773,36 +773,36 @@ function Admin() {
                                                 {attempt.createdAt ? new Date(attempt.createdAt).toLocaleDateString() : "-"}
                                               </td>
                                               <td style={{ padding: "12px" }}>
-                                                 <Button
-                                                   variant="outline-success"
-                                                   size="sm"
-                                                   onClick={() => setExpandedAttempt(expandedAttempt === attempt._id ? null : attempt._id)}
-                                                 >
-                                                   {expandedAttempt === attempt._id ? "Hide" : "View"}
-                                                 </Button>
-                                               </td>
-                                             </tr>
-                                             {expandedAttempt === attempt._id && (
-                                               <tr>
-                                                 <td colSpan="8" style={{ padding: "15px", backgroundColor: isDarkMode ? "#020617" : "#F8FAFC" }}>
-                                                   <div style={{ padding: "20px", borderRadius: "8px", border: `1px solid ${isDarkMode ? "#10b981" : "#E2E8F0"}`, backgroundColor: theme.cardBg, boxShadow: theme.cardShadow }}>
-                                                     <h5 style={{ color: isDarkMode ? "#34d399" : "#1E293B", marginBottom: "20px", fontSize: "18px", display: "flex", alignItems: "center", gap: "10px" }}>
-                                                       <span>📈</span> Placement Assessment Breakdown
-                                                     </h5>
-                                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", color: theme.mainText }}>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>Coding Assessment:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.codingAssessment || 0}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>Problems Solved:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.problemsSolved || 0}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>Mock Aptitude:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.mockAptitude || 0}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>Logical Score:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.logicalScore || 0}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>Mock Interview:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.mockInterview || 0}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>GD Score:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.gdScore || 0}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>Session Particip.:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.sessionParticipation || 0}%</span></div>
-                                                       <div><strong style={{ opacity: 0.8, color: theme.subText }}>Workshop Attend.:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.workshopAttendance || 0}%</span></div>
-                                                     </div>
-                                                   </div>
-                                                 </td>
-                                               </tr>
-                                             )}
+                                                <Button
+                                                  variant="outline-success"
+                                                  size="sm"
+                                                  onClick={() => setExpandedAttempt(expandedAttempt === attempt._id ? null : attempt._id)}
+                                                >
+                                                  {expandedAttempt === attempt._id ? "Hide" : "View"}
+                                                </Button>
+                                              </td>
+                                            </tr>
+                                            {expandedAttempt === attempt._id && (
+                                              <tr>
+                                                <td colSpan="8" style={{ padding: "15px", backgroundColor: isDarkMode ? "#020617" : "#F8FAFC" }}>
+                                                  <div style={{ padding: "20px", borderRadius: "8px", border: `1px solid ${isDarkMode ? "#10b981" : "#E2E8F0"}`, backgroundColor: theme.cardBg, boxShadow: theme.cardShadow }}>
+                                                    <h5 style={{ color: isDarkMode ? "#34d399" : "#1E293B", marginBottom: "20px", fontSize: "18px", display: "flex", alignItems: "center", gap: "10px" }}>
+                                                      <span>📈</span> Placement Assessment Breakdown
+                                                    </h5>
+                                                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", color: theme.mainText }}>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>Coding Assessment:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.codingAssessment || 0}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>Problems Solved:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.problemsSolved || 0}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>Mock Aptitude:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.mockAptitude || 0}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>Logical Score:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.logicalScore || 0}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>Mock Interview:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.mockInterview || 0}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>GD Score:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.gdScore || 0}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>Session Particip.:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.sessionParticipation || 0}%</span></div>
+                                                      <div><strong style={{ opacity: 0.8, color: theme.subText }}>Workshop Attend.:</strong> <span style={{ color: isDarkMode ? "#34d399" : "#10b981", fontWeight: "600" }}>{attempt.workshopAttendance || 0}%</span></div>
+                                                    </div>
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                            )}
                                           </React.Fragment>
                                         );
                                       })}

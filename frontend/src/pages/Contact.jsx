@@ -35,21 +35,21 @@ function Contact() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Clear any previous messages
     setSuccessMessage("");
     setErrorMessage("");
-    
+
     console.log("Sending contact message:", {
       name: formData.fullName,
       email: formData.email,
       subject: formData.subject,
       message: formData.message
     });
-    
+
     try {
-      console.log("Making axios request to:", "http://localhost:5000/api/contact");
-      const response = await axios.post("http://localhost:5000/api/contact", {
+      console.log("Making axios request to:", "http://https://readiness-monitoring-system.onrender.com/api/contact");
+      const response = await axios.post("http://https://readiness-monitoring-system.onrender.com/api/contact", {
         name: formData.fullName,
         email: formData.email,
         subject: formData.subject,
@@ -61,7 +61,7 @@ function Contact() {
       });
 
       console.log("Response received:", response);
-      
+
       if (response.status === 201) {
         setSuccessMessage("Message sent successfully");
         // Clear form
@@ -93,8 +93,8 @@ function Contact() {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}
     >
-      <Sidebar 
-        navItems={getDashboardNav()} 
+      <Sidebar
+        navItems={getDashboardNav()}
         showLogout={true}
         onLogout={handleLogout}
         userName={user?.name || "Student"}
@@ -112,25 +112,25 @@ function Contact() {
         <h1 style={{ color: theme.mainText, fontWeight: "800", marginBottom: "20px" }}>
           Contact Us
         </h1>
-        
+
         <p style={{ color: theme.subText, fontSize: "16px", marginBottom: "40px", lineHeight: "1.6" }}>
           If you have any questions, suggestions, or issues regarding the Readiness Monitoring System, please feel free to contact us.
         </p>
 
         {/* Two Column Layout */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px", alignItems: "start" }}>
-          
+
           {/* Left Column - Contact Information */}
           <div>
             <h2 style={{ color: theme.mainText, fontWeight: "600", marginBottom: "30px", fontSize: "24px" }}>
               Get In Touch
             </h2>
-            
+
             {/* Email Card */}
-            <div style={{ 
-              background: theme.cardBg, 
-              border: theme.cardBorder, 
-              borderRadius: "12px", 
+            <div style={{
+              background: theme.cardBg,
+              border: theme.cardBorder,
+              borderRadius: "12px",
               padding: "25px",
               marginBottom: "20px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -138,13 +138,13 @@ function Contact() {
               alignItems: "center",
               gap: "15px"
             }}>
-              <div style={{ 
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", 
-                borderRadius: "50%", 
-                width: "50px", 
-                height: "50px", 
-                display: "flex", 
-                alignItems: "center", 
+              <div style={{
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                borderRadius: "50%",
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                alignItems: "center",
                 justifyContent: "center",
                 color: "white",
                 fontSize: "20px"
@@ -155,11 +155,11 @@ function Contact() {
                 <h3 style={{ color: theme.mainText, fontWeight: "600", marginBottom: "5px", fontSize: "18px" }}>
                   Email Support
                 </h3>
-                <a 
+                <a
                   href="mailto:support@readinesssystem.com"
-                  style={{ 
-                    color: theme.subText, 
-                    textDecoration: "none", 
+                  style={{
+                    color: theme.subText,
+                    textDecoration: "none",
                     fontSize: "16px"
                   }}
                 >
@@ -169,10 +169,10 @@ function Contact() {
             </div>
 
             {/* Phone Card */}
-            <div style={{ 
-              background: theme.cardBg, 
-              border: theme.cardBorder, 
-              borderRadius: "12px", 
+            <div style={{
+              background: theme.cardBg,
+              border: theme.cardBorder,
+              borderRadius: "12px",
               padding: "25px",
               marginBottom: "20px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -180,13 +180,13 @@ function Contact() {
               alignItems: "center",
               gap: "15px"
             }}>
-              <div style={{ 
-                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", 
-                borderRadius: "50%", 
-                width: "50px", 
-                height: "50px", 
-                display: "flex", 
-                alignItems: "center", 
+              <div style={{
+                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                borderRadius: "50%",
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                alignItems: "center",
                 justifyContent: "center",
                 color: "white",
                 fontSize: "20px"
@@ -204,10 +204,10 @@ function Contact() {
             </div>
 
             {/* Institution Card */}
-            <div style={{ 
-              background: theme.cardBg, 
-              border: theme.cardBorder, 
-              borderRadius: "12px", 
+            <div style={{
+              background: theme.cardBg,
+              border: theme.cardBorder,
+              borderRadius: "12px",
               padding: "25px",
               marginBottom: "20px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -215,13 +215,13 @@ function Contact() {
               alignItems: "center",
               gap: "15px"
             }}>
-              <div style={{ 
-                background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)", 
-                borderRadius: "50%", 
-                width: "50px", 
-                height: "50px", 
-                display: "flex", 
-                alignItems: "center", 
+              <div style={{
+                background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+                borderRadius: "50%",
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                alignItems: "center",
                 justifyContent: "center",
                 color: "white",
                 fontSize: "20px"
@@ -239,10 +239,10 @@ function Contact() {
             </div>
 
             {/* Address Card */}
-            <div style={{ 
-              background: theme.cardBg, 
-              border: theme.cardBorder, 
-              borderRadius: "12px", 
+            <div style={{
+              background: theme.cardBg,
+              border: theme.cardBorder,
+              borderRadius: "12px",
               padding: "25px",
               marginBottom: "20px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -250,13 +250,13 @@ function Contact() {
               alignItems: "center",
               gap: "15px"
             }}>
-              <div style={{ 
-                background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)", 
-                borderRadius: "50%", 
-                width: "50px", 
-                height: "50px", 
-                display: "flex", 
-                alignItems: "center", 
+              <div style={{
+                background: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+                borderRadius: "50%",
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                alignItems: "center",
                 justifyContent: "center",
                 color: "white",
                 fontSize: "20px"
@@ -279,13 +279,13 @@ function Contact() {
             <h2 style={{ color: theme.mainText, fontWeight: "600", marginBottom: "30px", fontSize: "24px" }}>
               Send us a Message
             </h2>
-            
+
             {successMessage && (
               <Alert variant="success" style={{ marginBottom: "20px" }}>
                 {successMessage}
               </Alert>
             )}
-            
+
             {errorMessage && (
               <Alert variant="danger" style={{ marginBottom: "20px" }}>
                 {errorMessage}
@@ -412,10 +412,10 @@ function Contact() {
         </div>
 
         {/* Footer Message */}
-        <div style={{ 
-          textAlign: "center", 
-          color: theme.subText, 
-          fontSize: "14px", 
+        <div style={{
+          textAlign: "center",
+          color: theme.subText,
+          fontSize: "14px",
           fontStyle: "italic",
           marginTop: "40px"
         }}>

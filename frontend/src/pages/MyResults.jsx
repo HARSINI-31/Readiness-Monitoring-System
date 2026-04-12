@@ -15,8 +15,8 @@ function MyResults() {
 
   useEffect(() => {
     if (user && user.role !== "admin" && !studentProfile) {
-      navigate("/student-profile", { 
-        state: { message: "Please complete your profile to access readiness assessments." } 
+      navigate("/student-profile", {
+        state: { message: "Please complete your profile to access readiness assessments." }
       });
     } else {
       setProfileCheckLoading(false);
@@ -57,10 +57,10 @@ function MyResults() {
   const fetchAllAttempts = async () => {
     try {
       const [examRes, placementRes] = await Promise.all([
-        axios.get(`http://localhost:5000/my-exam-attempts/${user?.userEmail}`),
-        axios.get(`http://localhost:5000/my-placement-attempts/${user?.userEmail}`)
+        axios.get(`http://https://readiness-monitoring-system.onrender.com/my-exam-attempts/${user?.userEmail}`),
+        axios.get(`http://https://readiness-monitoring-system.onrender.com/my-placement-attempts/${user?.userEmail}`)
       ]);
-      
+
       setAttempts({
         exam: Array.isArray(examRes.data) ? examRes.data : examRes.data?.attempts || [],
         placement: Array.isArray(placementRes.data) ? placementRes.data : placementRes.data?.attempts || []

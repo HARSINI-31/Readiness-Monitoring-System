@@ -26,7 +26,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/login", formData);
+      const res = await axios.post("http://https://readiness-monitoring-system.onrender.com/login", formData);
 
       // Store user data in context first
       login({
@@ -42,15 +42,15 @@ function Login() {
       } else {
         // Check for student profile
         try {
-          const profileRes = await axios.get(`http://localhost:5000/student-profile-exists/${res.data.userEmail}`);
-          
+          const profileRes = await axios.get(`http://https://readiness-monitoring-system.onrender.com/student-profile-exists/${res.data.userEmail}`);
+
           // Consider profile complete ONLY IF it exists AND has required fields
           const profile = profileRes.data.profile;
-          const isComplete = profileRes.data.exists && 
-                            profile && 
-                            profile.studentId && 
-                            profile.department && 
-                            profile.yearOfStudy;
+          const isComplete = profileRes.data.exists &&
+            profile &&
+            profile.studentId &&
+            profile.department &&
+            profile.yearOfStudy;
 
           if (isComplete) {
             updateStudentProfile(profile);
@@ -59,8 +59,8 @@ function Login() {
           } else {
             // Not completely filled, send to profile
             alert("Please complete your profile to continue.");
-            navigate("/student-profile", { 
-              state: { message: "Please complete your profile to access readiness assessments." } 
+            navigate("/student-profile", {
+              state: { message: "Please complete your profile to access readiness assessments." }
             });
           }
         } catch (profileErr) {

@@ -19,10 +19,10 @@ function StudentProfile() {
   const [wasIncomplete, setWasIncomplete] = useState(false);
 
   const isProfileComplete = (profile) => {
-    return profile && 
-           profile.studentId && 
-           profile.department && 
-           profile.yearOfStudy;
+    return profile &&
+      profile.studentId &&
+      profile.department &&
+      profile.yearOfStudy;
   };
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function StudentProfile() {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/student-profile-exists/${user?.userEmail}`);
+      const res = await axios.get(`http://https://readiness-monitoring-system.onrender.com/student-profile-exists/${user?.userEmail}`);
       if (res.data.exists) {
         const profile = res.data.profile;
         setFormData({
@@ -53,14 +53,14 @@ function StudentProfile() {
           department: profile.department || "",
           yearOfStudy: profile.yearOfStudy || ""
         });
-        
+
         // Check if it was incomplete when we loaded it
         const complete = isProfileComplete(profile);
         setWasIncomplete(!complete);
-        
+
         // Update context
         updateStudentProfile(profile);
-        
+
         // Show profile in read-only mode until user explicitly edits
         setIsEditing(false);
       } else {
@@ -150,7 +150,7 @@ function StudentProfile() {
 
     setLoading(true);
     try {
-      const profileRes = await axios.post("http://localhost:5000/student-profile", {
+      const profileRes = await axios.post("http://https://readiness-monitoring-system.onrender.com/student-profile", {
         userId: user?.userId,
         userEmail: user?.userEmail,
         ...formData
@@ -181,7 +181,7 @@ function StudentProfile() {
     } catch (error) {
       console.error("Error saving profile:", error);
       let errorMsg = "Error saving profile";
-      
+
       if (error.response?.data?.message) {
         errorMsg = error.response.data.message;
       } else if (error.message) {
@@ -191,7 +191,7 @@ function StudentProfile() {
       } else if (error.response?.status === 500) {
         errorMsg = "Server error. Please check if backend is running.";
       }
-      
+
       setMessage(errorMsg);
     } finally {
       setLoading(false);
@@ -213,8 +213,8 @@ function StudentProfile() {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}
     >
-      <Sidebar 
-        navItems={getDashboardNav()} 
+      <Sidebar
+        navItems={getDashboardNav()}
         showLogout={true}
         onLogout={handleLogout}
         userName={user?.name || "Student"}
@@ -256,13 +256,13 @@ function StudentProfile() {
               overflow: "hidden"
             }}
           >
-            <div style={{ 
-              height: "100px", 
+            <div style={{
+              height: "100px",
               background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
               position: "relative"
             }}>
               {/* Avatar */}
-              <div 
+              <div
                 style={{
                   width: "100px",
                   height: "100px",
@@ -284,7 +284,7 @@ function StudentProfile() {
                 {user?.userName ? user.userName.charAt(0).toUpperCase() : "S"}
               </div>
             </div>
-            
+
             <div style={{ padding: "60px 30px 30px 30px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <h3 style={{ margin: 0, fontWeight: "bold", color: theme.mainText }}>
@@ -294,9 +294,9 @@ function StudentProfile() {
                   {user?.userEmail || "student@example.com"}
                 </p>
               </div>
-              <Button 
+              <Button
                 variant={isEditing ? "outline-danger" : "outline-primary"}
-                style={{ 
+                style={{
                   borderRadius: "20px",
                   padding: "6px 20px",
                   fontWeight: "600",
@@ -348,9 +348,9 @@ function StudentProfile() {
                       autoFocus={isEditing}
                       autoComplete="off"
                       placeholder="e.g., CS2024001"
-                      style={{ 
-                        borderRadius: "8px", 
-                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg, 
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg,
                         color: isEditing ? "#000000" : theme.inputText,
                         border: isEditing ? "2px solid #3b82f6" : "1px solid rgba(203, 213, 225, 0.3)",
                         padding: "10px 15px",
@@ -374,9 +374,9 @@ function StudentProfile() {
                       readOnly={!isEditing}
                       autoComplete="off"
                       placeholder="Enter your full name"
-                      style={{ 
-                        borderRadius: "8px", 
-                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg, 
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg,
                         color: isEditing ? "#000000" : theme.inputText,
                         border: isEditing ? "2px solid #3b82f6" : "1px solid rgba(203, 213, 225, 0.3)",
                         padding: "10px 15px",
@@ -404,9 +404,9 @@ function StudentProfile() {
                       readOnly={!isEditing}
                       autoComplete="off"
                       placeholder="Enter your email"
-                      style={{ 
-                        borderRadius: "8px", 
-                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg, 
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg,
                         color: isEditing ? "#000000" : theme.inputText,
                         border: isEditing ? "2px solid #3b82f6" : "1px solid rgba(203, 213, 225, 0.3)",
                         padding: "10px 15px",
@@ -429,9 +429,9 @@ function StudentProfile() {
                       readOnly={!isEditing}
                       autoComplete="off"
                       placeholder="Enter your phone number"
-                      style={{ 
-                        borderRadius: "8px", 
-                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg, 
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg,
                         color: isEditing ? "#000000" : theme.inputText,
                         border: isEditing ? "2px solid #3b82f6" : "1px solid rgba(203, 213, 225, 0.3)",
                         padding: "10px 15px",
@@ -453,9 +453,9 @@ function StudentProfile() {
                       onChange={handleChange}
                       isInvalid={!!errors.department}
                       disabled={!isEditing}
-                      style={{ 
-                        borderRadius: "8px", 
-                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg, 
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg,
                         color: isEditing ? "#000000" : theme.inputText,
                         border: isEditing ? "2px solid #3b82f6" : "1px solid rgba(203, 213, 225, 0.3)",
                         padding: "10px 15px",
@@ -483,9 +483,9 @@ function StudentProfile() {
                       onChange={handleChange}
                       isInvalid={!!errors.yearOfStudy}
                       disabled={!isEditing}
-                      style={{ 
-                        borderRadius: "8px", 
-                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg, 
+                      style={{
+                        borderRadius: "8px",
+                        backgroundColor: isEditing ? "#ffffff" : theme.inputBg,
                         color: isEditing ? "#000000" : theme.inputText,
                         border: isEditing ? "2px solid #3b82f6" : "1px solid rgba(203, 213, 225, 0.3)",
                         padding: "10px 15px",

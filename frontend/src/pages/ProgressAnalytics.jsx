@@ -15,8 +15,8 @@ function ProgressAnalytics() {
 
   useEffect(() => {
     if (user && user.role !== "admin" && !studentProfile) {
-      navigate("/student-profile", { 
-        state: { message: "Please complete your profile to access readiness assessments." } 
+      navigate("/student-profile", {
+        state: { message: "Please complete your profile to access readiness assessments." }
       });
     } else {
       setProfileCheckLoading(false);
@@ -38,8 +38,8 @@ function ProgressAnalytics() {
     try {
       const email = user.userEmail;
       const [examRes, placementRes] = await Promise.all([
-        axios.get(`http://localhost:5000/my-exam-attempts/${email}`),
-        axios.get(`http://localhost:5000/my-placement-attempts/${email}`)
+        axios.get(`http://https://readiness-monitoring-system.onrender.com/my-exam-attempts/${email}`),
+        axios.get(`http://https://readiness-monitoring-system.onrender.com/my-placement-attempts/${email}`)
       ]);
 
       // Normalize data and sort by date (oldest to newest for charts)
@@ -74,9 +74,9 @@ function ProgressAnalytics() {
     const width = 800;
     const height = 280;
     const padding = { top: 20, right: 40, bottom: 60, left: 50 };
-    
+
     const displayData = data;
-    
+
     const points = displayData.map((d, i) => {
       const x = padding.left + (i * (width - padding.left - padding.right)) / Math.max(1, displayData.length - 1);
       const y = height - padding.bottom - (d.overall * (height - padding.top - padding.bottom)) / 100;
@@ -100,23 +100,23 @@ function ProgressAnalytics() {
               </g>
             );
           })}
-          
+
           {/* X-Axis Labels (Dates) */}
           {displayData.map((d, i) => {
             const x = padding.left + (i * (width - padding.left - padding.right)) / Math.max(1, displayData.length - 1);
             const dateStr = new Date(d.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-            
+
             // Only show labels for every Nth point if there are many to avoid overlap
             const step = Math.ceil(displayData.length / 8);
             if (i % step !== 0 && i !== displayData.length - 1) return null;
 
             return (
-              <text 
-                key={i} 
-                x={x} 
-                y={height - padding.bottom + 25} 
-                fontSize="10" 
-                fill={theme.subText} 
+              <text
+                key={i}
+                x={x}
+                y={height - padding.bottom + 25}
+                fontSize="10"
+                fill={theme.subText}
                 textAnchor="middle"
                 transform={`rotate(0, ${x}, ${height - padding.bottom + 25})`}
               >
@@ -140,7 +140,7 @@ function ProgressAnalytics() {
               style={{ filter: `drop-shadow(0px 0px 6px ${color}66)` }}
             />
           )}
-          
+
           {/* Data points */}
           {displayData.map((d, i) => {
             const x = padding.left + (i * (width - padding.left - padding.right)) / Math.max(1, displayData.length - 1);
@@ -175,11 +175,11 @@ function ProgressAnalytics() {
   const placementStats = getStats(placementData);
 
   const StatCard = ({ title, value, subValue, color, icon }) => (
-    <Card style={{ 
-      background: theme.cardBg, 
-      border: theme.cardBorder, 
-      borderRadius: "12px", 
-      padding: "20px", 
+    <Card style={{
+      background: theme.cardBg,
+      border: theme.cardBorder,
+      borderRadius: "12px",
+      padding: "20px",
       color: theme.mainText,
       boxShadow: theme.cardShadow
     }}>
@@ -211,8 +211,8 @@ function ProgressAnalytics() {
         backgroundAttachment: "fixed"
       }}
     >
-      <Sidebar 
-        navItems={getDashboardNav()} 
+      <Sidebar
+        navItems={getDashboardNav()}
         showLogout={true}
         onLogout={handleLogout}
         userName={user?.name || "Student"}
@@ -241,31 +241,31 @@ function ProgressAnalytics() {
             </div>
           ) : (
             <div style={{ display: "grid", gap: "50px" }}>
-              
+
               {/* SUMMARY CARDS ROW */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "25px" }}>
-                <StatCard 
-                  title="Latest Exam Score" 
-                  value={`${examStats.latest}%`} 
-                  subValue={examStats.delta} 
-                  icon="📝" 
+                <StatCard
+                  title="Latest Exam Score"
+                  value={`${examStats.latest}%`}
+                  subValue={examStats.delta}
+                  icon="📝"
                 />
-                <StatCard 
-                  title="Latest Placement Score" 
-                  value={`${placementStats.latest}%`} 
-                  subValue={placementStats.delta} 
-                  icon="💼" 
+                <StatCard
+                  title="Latest Placement Score"
+                  value={`${placementStats.latest}%`}
+                  subValue={placementStats.delta}
+                  icon="💼"
                 />
-                <StatCard 
-                  title="Total Attempts" 
-                  value={examStats.total + placementStats.total} 
-                  subValue={0} 
-                  icon="🔢" 
+                <StatCard
+                  title="Total Attempts"
+                  value={examStats.total + placementStats.total}
+                  subValue={0}
+                  icon="🔢"
                 />
               </div>
 
               <hr style={{ border: "0", borderTop: "1px solid rgba(255,255,255,0.1)", margin: "10px 0" }} />
-              
+
               {/* EXAM READINESS SECTION */}
               <section>
                 <h2 style={{ fontSize: "28px", fontWeight: "700", marginBottom: "25px", color: "#3b82f6" }}>

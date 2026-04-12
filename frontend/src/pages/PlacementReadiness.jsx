@@ -16,14 +16,14 @@ function PlacementReadiness() {
 
   useEffect(() => {
     if (user && user.role !== "admin") {
-      const isComplete = studentProfile && 
-                        studentProfile.studentId && 
-                        studentProfile.department && 
-                        studentProfile.yearOfStudy;
+      const isComplete = studentProfile &&
+        studentProfile.studentId &&
+        studentProfile.department &&
+        studentProfile.yearOfStudy;
 
       if (!isComplete) {
-        navigate("/student-profile", { 
-          state: { message: "Please complete your profile to access readiness assessments." } 
+        navigate("/student-profile", {
+          state: { message: "Please complete your profile to access readiness assessments." }
         });
       } else {
         setProfileCheckLoading(false);
@@ -67,7 +67,7 @@ function PlacementReadiness() {
   const fetchAllPlacementResults = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/all-placement-results");
+      const res = await axios.get("http://https://readiness-monitoring-system.onrender.com/all-placement-results");
       setAllResults(res.data || []);
     } catch (error) {
       console.error("Error fetching placement results:", error);
@@ -142,7 +142,7 @@ function PlacementReadiness() {
 
   const handleFieldChange = (setter, fieldName, value) => {
     setter(value);
-    
+
     // Real-time validation
     setErrors(prev => {
       const next = { ...prev };
@@ -164,7 +164,7 @@ function PlacementReadiness() {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/calculate", {
+      const response = await fetch("http://https://readiness-monitoring-system.onrender.com/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -416,41 +416,41 @@ function PlacementReadiness() {
                                       backgroundColor: idx % 2 === 0 ? "rgba(30, 41, 59, 0.5)" : "transparent",
                                     }}
                                   >
-                                  <td style={{ padding: "12px" }}>
-                                    {attempt.aptitudeScore || "-"}
-                                  </td>
-                                  <td style={{ padding: "12px" }}>
-                                    {attempt.codingScore || "-"}
-                                  </td>
-                                  <td style={{ padding: "12px" }}>
-                                    {attempt.communicationScore || "-"}
-                                  </td>
-                                  <td style={{ padding: "12px" }}>
-                                    {attempt.attendanceScore || "-"}
-                                  </td>
-                                  <td style={{ padding: "12px", fontWeight: "bold" }}>
-                                    {attempt.overall || "-"}%
-                                  </td>
-                                  <td style={{ padding: "12px" }}>
-                                    <span
-                                      style={{
-                                        backgroundColor: getStatusColor(attempt.overall || 0),
-                                        color: "#fff",
-                                        padding: "4px 12px",
-                                        borderRadius: "4px",
-                                        fontSize: "12px",
-                                        fontWeight: "600",
-                                      }}
-                                    >
-                                      {getStatusText(attempt.overall || 0)}
-                                    </span>
-                                  </td>
-                                  <td style={{ padding: "12px", fontSize: "12px" }}>
-                                    {attempt.createdAt
-                                      ? new Date(attempt.createdAt).toLocaleDateString()
-                                      : attempt.date || "-"}
-                                  </td>
-                                </tr>
+                                    <td style={{ padding: "12px" }}>
+                                      {attempt.aptitudeScore || "-"}
+                                    </td>
+                                    <td style={{ padding: "12px" }}>
+                                      {attempt.codingScore || "-"}
+                                    </td>
+                                    <td style={{ padding: "12px" }}>
+                                      {attempt.communicationScore || "-"}
+                                    </td>
+                                    <td style={{ padding: "12px" }}>
+                                      {attempt.attendanceScore || "-"}
+                                    </td>
+                                    <td style={{ padding: "12px", fontWeight: "bold" }}>
+                                      {attempt.overall || "-"}%
+                                    </td>
+                                    <td style={{ padding: "12px" }}>
+                                      <span
+                                        style={{
+                                          backgroundColor: getStatusColor(attempt.overall || 0),
+                                          color: "#fff",
+                                          padding: "4px 12px",
+                                          borderRadius: "4px",
+                                          fontSize: "12px",
+                                          fontWeight: "600",
+                                        }}
+                                      >
+                                        {getStatusText(attempt.overall || 0)}
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: "12px", fontSize: "12px" }}>
+                                      {attempt.createdAt
+                                        ? new Date(attempt.createdAt).toLocaleDateString()
+                                        : attempt.date || "-"}
+                                    </td>
+                                  </tr>
                                 );
                               })}
                             </tbody>
