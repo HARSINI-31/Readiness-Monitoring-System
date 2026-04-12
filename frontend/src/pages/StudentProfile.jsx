@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import { Card, Button, Form, Alert, Row, Col } from "react-bootstrap";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { useUser } from "../context/UserContext";
-
-const API = process.env.REACT_APP_API_URL;
 import Sidebar from "../components/Sidebar";
+import { useUser } from "../context/UserContext";
 import { useTheme } from "../context/ThemeContext";
 import { getDashboardNav } from "../utils/navConfig";
+
+const API = process.env.REACT_APP_API_URL;
 
 function StudentProfile() {
   const navigate = useNavigate();

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { Card } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import { useTheme } from "../context/ThemeContext";
 import { useUser } from "../context/UserContext";
-import { useNavigate } from "react-router-dom";
+import { getDashboardNav } from "../utils/navConfig";
 
 const API = process.env.REACT_APP_API_URL;
-import { getDashboardNav } from "../utils/navConfig";
-import axios from "axios";
-import { Card } from "react-bootstrap";
 
 function ProgressAnalytics() {
   const { theme, isDarkMode } = useTheme();
