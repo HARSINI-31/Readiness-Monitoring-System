@@ -18,7 +18,7 @@ app.use(express.json());
 
 const allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(",") 
-  : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'];
+  : ['http://https://readiness-monitoring-system.onrender.com:3000', 'http://https://readiness-monitoring-system.onrender.com:3001', 'http://https://readiness-monitoring-system.onrender.com:3002'];
 
 app.use(cors({
   origin: function (origin, callback) {
