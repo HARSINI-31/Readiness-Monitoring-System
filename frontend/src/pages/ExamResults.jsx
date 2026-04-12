@@ -43,8 +43,6 @@ function ExamResult() {
     overall,
   } = data;
 
-  const attendanceValue = typeof attendance === "number" ? attendance : 0;
-  const studyHoursValue = typeof studyHours === "number" ? studyHours : 0;
 
   const parameters = [
     { name: "Avg Internal", value: avgInternalMarks || 0, color: "#4e73df" },

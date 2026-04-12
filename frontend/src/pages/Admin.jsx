@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, Button, Table, Container, Tabs, Tab } from "react-bootstrap";
+import { Card, Button, Table } from "react-bootstrap";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import { useTheme } from "../context/ThemeContext";
@@ -20,7 +20,6 @@ function Admin() {
   const [expandedExam, setExpandedExam] = useState(null);
   const [expandedPlacement, setExpandedPlacement] = useState(null);
   const [expandedAttempt, setExpandedAttempt] = useState(null);
-  const [viewingResults, setViewingResults] = useState(null);
   const { isDarkMode, theme } = useTheme();
 
   useEffect(() => {
@@ -741,7 +740,6 @@ function Admin() {
                                     </thead>
                                     <tbody>
                                       {sortedAttempts.map((attempt, idx) => {
-                                        const attemptKey = `placement-${studentName}-${idx}`;
                                         return (
                                           <React.Fragment key={idx}>
                                             <tr

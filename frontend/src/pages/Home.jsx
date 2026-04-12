@@ -1,12 +1,10 @@
 // src/pages/Home.jsx
-import React, { useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
-import { useUser } from "../context/UserContext";
 
 const Home = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
 
 
   const scrollToSection = (sectionId) => {
