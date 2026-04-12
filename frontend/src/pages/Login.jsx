@@ -5,7 +5,7 @@ import axios from "axios";
 import Logo from "../components/Logo";
 import { useUser } from "../context/UserContext";
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || "https://readiness-monitoring-system.onrender.com";
 
 function Login() {
   const navigate = useNavigate();

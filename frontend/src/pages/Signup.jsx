@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../components/Logo";
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || "https://readiness-monitoring-system.onrender.com";
 
 function Signup() {
   const navigate = useNavigate();

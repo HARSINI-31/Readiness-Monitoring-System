@@ -7,7 +7,7 @@ import { getDashboardNav } from "../utils/navConfig";
 import { Form, Button, Alert } from "react-bootstrap";
 import axios from "axios";
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || "https://readiness-monitoring-system.onrender.com";
 
 function Contact() {
   const { theme } = useTheme();

@@ -7,7 +7,7 @@ import { useUser } from "../context/UserContext";
 import { useTheme } from "../context/ThemeContext";
 import { getDashboardNav } from "../utils/navConfig";
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || "https://readiness-monitoring-system.onrender.com";
 
 function ExamReadiness() {
   const navigate = useNavigate();

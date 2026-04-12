@@ -7,7 +7,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useUser } from "../context/UserContext";
 import { getDashboardNav } from "../utils/navConfig";
 
-const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL || "https://readiness-monitoring-system.onrender.com";
 
 function ProgressAnalytics() {
   const { theme, isDarkMode } = useTheme();
