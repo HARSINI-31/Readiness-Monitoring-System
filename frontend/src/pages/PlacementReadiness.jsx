@@ -4,6 +4,8 @@ import Sidebar from "../components/Sidebar";
 import { Card } from "react-bootstrap";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
+
+const API = process.env.REACT_APP_API_URL;
 import { useTheme } from "../context/ThemeContext";
 import { getDashboardNav } from "../utils/navConfig";
 
@@ -67,7 +69,7 @@ function PlacementReadiness() {
   const fetchAllPlacementResults = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("https://readiness-monitoring-system.onrender.com/all-placement-results");
+      const res = await axios.get(`${API}/all-placement-results`);
       setAllResults(res.data || []);
     } catch (error) {
       console.error("Error fetching placement results:", error);
@@ -164,7 +166,7 @@ function PlacementReadiness() {
 
     setLoading(true);
     try {
-      const response = await fetch("https://readiness-monitoring-system.onrender.com/calculate", {
+      const response = await fetch(`${API}/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

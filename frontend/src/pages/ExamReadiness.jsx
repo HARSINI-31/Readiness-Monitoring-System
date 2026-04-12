@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import { useUser } from "../context/UserContext";
+
+const API = process.env.REACT_APP_API_URL;
 import { useTheme } from "../context/ThemeContext";
 import { getDashboardNav } from "../utils/navConfig";
 
@@ -118,7 +120,7 @@ function ExamReadiness() {
   const fetchAllExamResults = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("https://readiness-monitoring-system.onrender.com/all-exam-results");
+      const res = await axios.get(`${API}/all-exam-results`);
       setAllResults(res.data || []);
     } catch (error) {
       console.error("Error fetching exam results:", error);
@@ -293,7 +295,7 @@ function ExamReadiness() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "https://readiness-monitoring-system.onrender.com/exam-calculate",
+        `${API}/exam-calculate`,
         {
           studentId: studentProfile?.studentId,
           studentEmail: user?.userEmail,

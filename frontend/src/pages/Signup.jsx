@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../components/Logo";
 
+const API = process.env.REACT_APP_API_URL;
+
 function Signup() {
   const navigate = useNavigate();
 
@@ -24,7 +26,7 @@ function Signup() {
     e.preventDefault();
 
     try {
-      await axios.post("https://readiness-monitoring-system.onrender.com/signup", formData);
+      await axios.post(`${API}/signup`, formData);
       alert("Signup Successful");
       navigate("/login");
     } catch (error) {

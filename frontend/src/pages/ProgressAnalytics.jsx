@@ -3,6 +3,8 @@ import Sidebar from "../components/Sidebar";
 import { useTheme } from "../context/ThemeContext";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+
+const API = process.env.REACT_APP_API_URL;
 import { getDashboardNav } from "../utils/navConfig";
 import axios from "axios";
 import { Card } from "react-bootstrap";
@@ -38,8 +40,8 @@ function ProgressAnalytics() {
     try {
       const email = user.userEmail;
       const [examRes, placementRes] = await Promise.all([
-        axios.get(`https://readiness-monitoring-system.onrender.com/my-exam-attempts/${email}`),
-        axios.get(`https://readiness-monitoring-system.onrender.com/my-placement-attempts/${email}`)
+        axios.get(`${API}/my-exam-attempts/${email}`),
+        axios.get(`${API}/my-placement-attempts/${email}`)
       ]);
 
       // Normalize data and sort by date (oldest to newest for charts)

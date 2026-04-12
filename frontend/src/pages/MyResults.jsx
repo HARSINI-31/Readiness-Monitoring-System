@@ -4,6 +4,8 @@ import { Card, Button } from "react-bootstrap";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import { useUser } from "../context/UserContext";
+
+const API = process.env.REACT_APP_API_URL;
 import { useTheme } from "../context/ThemeContext";
 import { getDashboardNav } from "../utils/navConfig";
 
@@ -57,8 +59,8 @@ function MyResults() {
   const fetchAllAttempts = async () => {
     try {
       const [examRes, placementRes] = await Promise.all([
-        axios.get(`https://readiness-monitoring-system.onrender.com/my-exam-attempts/${user?.userEmail}`),
-        axios.get(`https://readiness-monitoring-system.onrender.com/my-placement-attempts/${user?.userEmail}`)
+        axios.get(`${API}/my-exam-attempts/${user?.userEmail}`),
+        axios.get(`${API}/my-placement-attempts/${user?.userEmail}`)
       ]);
 
       setAttempts({

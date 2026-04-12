@@ -7,6 +7,8 @@ import { getDashboardNav } from "../utils/navConfig";
 import { Form, Button, Alert } from "react-bootstrap";
 import axios from "axios";
 
+const API = process.env.REACT_APP_API_URL;
+
 function Contact() {
   const { theme } = useTheme();
   const { user, logout } = useUser();
@@ -48,8 +50,8 @@ function Contact() {
     });
 
     try {
-      console.log("Making axios request to:", "https://readiness-monitoring-system.onrender.com/api/contact");
-      const response = await axios.post("https://readiness-monitoring-system.onrender.com/api/contact", {
+      console.log("Making axios request to:", `${API}/api/contact`);
+      const response = await axios.post(`${API}/api/contact`, {
         name: formData.fullName,
         email: formData.email,
         subject: formData.subject,

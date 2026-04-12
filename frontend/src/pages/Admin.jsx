@@ -7,6 +7,8 @@ import { useTheme } from "../context/ThemeContext";
 import { useUser } from "../context/UserContext";
 import { getAdminNav } from "../utils/navConfig";
 
+const API = process.env.REACT_APP_API_URL;
+
 function Admin() {
   const navigate = useNavigate();
   const { logout } = useUser();
@@ -29,9 +31,9 @@ function Admin() {
   const fetchData = async () => {
     try {
       const [studentsRes, assessmentsRes, contactRes] = await Promise.all([
-        axios.get("https://readiness-monitoring-system.onrender.com/students"),
-        axios.get("https://readiness-monitoring-system.onrender.com/all-assessments"),
-        axios.get("https://readiness-monitoring-system.onrender.com/api/contact")
+        axios.get(`${API}/students`),
+        axios.get(`${API}/all-assessments`),
+        axios.get(`${API}/api/contact`)
       ]);
       setStudents(studentsRes.data);
       setAssessments(assessmentsRes.data);
@@ -51,7 +53,7 @@ function Admin() {
   const handleDeleteStudent = async (studentId) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
-        await axios.delete(`https://readiness-monitoring-system.onrender.com/students/${studentId}`);
+        await axios.delete(`${API}/students/${studentId}`);
         setStudents(students.filter(student => student._id !== studentId));
         alert("Student deleted successfully");
       } catch (error) {

@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Card, Button, Form, Alert, Row, Col } from "react-bootstrap";
 import axios from "axios";
 import { useUser } from "../context/UserContext";
+
+const API = process.env.REACT_APP_API_URL;
 import Sidebar from "../components/Sidebar";
 import { useTheme } from "../context/ThemeContext";
 import { getDashboardNav } from "../utils/navConfig";
@@ -42,7 +44,7 @@ function StudentProfile() {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await axios.get(`https://readiness-monitoring-system.onrender.com/student-profile-exists/${user?.userEmail}`);
+      const res = await axios.get(`${API}/student-profile-exists/${user?.userEmail}`);
       if (res.data.exists) {
         const profile = res.data.profile;
         setFormData({
@@ -150,7 +152,7 @@ function StudentProfile() {
 
     setLoading(true);
     try {
-      const profileRes = await axios.post("https://readiness-monitoring-system.onrender.com/student-profile", {
+      const profileRes = await axios.post(`${API}/student-profile`, {
         userId: user?.userId,
         userEmail: user?.userEmail,
         ...formData
